@@ -1,0 +1,8 @@
+{
+    "username": {
+        "required": "O nome do usuário é obrigatório"
+    },
+    "password": {
+        "required": "A senha é obrigatória"
+    }
+}
