@@ -6,7 +6,6 @@ import {
   Navigate,
   Routes as RoutesV6,
   Outlet,
-  Link
 } from 'react-router-dom';
 import {
   AuthProvider
@@ -17,7 +16,7 @@ import LoginPage from './src/pages/Login';
 import MapFormPages from './src/pages/maps/MapFormPage';
 import MapPages from './src/pages/maps/MapPage';
 import CustomerPage from './src/pages/register/customer';
-import { ProtectedLayout } from './components/ProtectedLayout';
+import SchedulePage from './src/pages/register/schedule';
 import App from './src/App';
 
 export interface IRoute extends RouteProps {
@@ -96,9 +95,15 @@ export default function Routes() {
             <Route path='/login' element={<LoginPage />} />
             <Route path='/app' element={<App />}>
               <Route
-                path="customers"
+                path="customer"
                 element={
                     <CustomerPage />
+                }
+              />
+              <Route
+                path="schedule"
+                element={
+                    <SchedulePage />
                 }
               />
             </Route>

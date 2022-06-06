@@ -1,8 +1,6 @@
-import { env } from "process";
-import { useEffect } from "react";
+import React from "react";
 import { Outlet } from "react-router-dom";
-import { ProtectedLayout } from "../components/ProtectedLayout";
-import api from "../services/api";
+import { SideNav } from "../components/layouts/SideNav";
 
 function App() {
 
@@ -10,11 +8,18 @@ function App() {
   //     var data = api.get('/api/Authentication');
   //     console.log(data);
   // }, []);
-
+  
   return (
     <>
-    <ProtectedLayout />
-    <Outlet />
+      <div className="flex">
+        <SideNav />
+        <div className="h-screen flex-1 p-7">
+
+          <h1 className="text-2xl font-semibold ">Home Page</h1>
+          <Outlet />
+
+        </div>
+      </div>
     </>
   );
 }

@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { phoneNumber } from '../../utils/validations';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoginFormData } from '../../models/User';
 import InputMask from 'react-input-mask';
-import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import { toast } from 'react-toastify';
 
 export interface ILoginPageProps {};
 
 const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
 
     const { handleLogin, authenticated } = useAuth();
+    const [loading, setLoading] = useState(false);
 
     const validationSchema = yup.object().shape({
         username: yup.string().required(),
@@ -40,35 +41,45 @@ const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
     };
 
     const onSubmit = async (data: LoginFormData) => {
-
-        // api.post('/api/Authentication', {
-        //     'userName': data.username.replaceAll('.', '').replaceAll('-', ''),
-        //     'password': data.password
-        // }).then(result => {
-        //     console.debug('result', result);
-        // }).catch(error => {
-        //     console.debug('error', error);
-        // });
-
+        setLoading(true);
         await handleLogin(data.username.replaceAll('.', '').replaceAll('-', ''), data.password);
-
-console.debug('form data', data);
+        setLoading(false);
     };
 
     const onError = (error: any) => {
-        console.debug('error', error);
+        toast.error(error);
     };
+
+    function beforeMaskedStateChange({ nextState }:any) {
+
+console.log(nextState);
+
+        let { value } = nextState;
+        if (value.endsWith(".") || value.endsWith("-")) {
+          value = value.slice(0, -1);
+        }
+      
+        return {
+          ...nextState,
+          value
+        };
+    }
 
     const classValues = {
         "input": "form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none",
         "button": "inline-block px-7 py-3 bg-blue-600 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full"
     };
 
+    if(loading) {
+        return <h1>loading</h1>
+    }
+
     return(
         <>
             <section className="h-screen">
             <div className="container px-6 py-12 h-full">
                 <div className="flex justify-center items-center flex-wrap h-full g-6 text-gray-800">
+                
                 <div className="md:w-8/12 lg:w-6/12 mb-12 md:mb-0">
                     <img
                     src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg"
@@ -76,17 +87,20 @@ console.debug('form data', data);
                     alt="Phone image"
                     />
                 </div>
+
                 <div className="md:w-8/12 lg:w-5/12 lg:ml-20">
-                    <form onSubmit={handleSubmit(onSubmit, onError)}>
+                    <form onSubmit={handleSubmit(onSubmit, onError)} >
                     {/* Email input  */}
                     <div className="mb-6">
                         <InputMask
                             mask="999.999.999-99"
-                            type="text"
                             className={classValues.input}
                             placeholder="Ex: 111.111.111-11"
+                            alwaysShowMask={false}
+                            maskPlaceholder={null}
                             // maxLength={14}
                             {...register('username')}
+                            beforeMaskedStateChange={beforeMaskedStateChange}
                         />
                         {errors?.username?.type && (
                             <div className="text-red-600">
@@ -110,25 +124,6 @@ console.debug('form data', data);
                             </div>
                         )}
                     </div>
-
-                    {/* <div className="flex justify-between items-center mb-6">
-                        <div className="form-group form-check">
-                            <input
-                                type="checkbox"
-                                className="form-check-input appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
-                                id="exampleCheck3"
-                                checked
-                            />
-                            <label className="form-check-label inline-block text-gray-800">
-                                Remember me
-                            </label>
-                        </div>
-                        <a
-                        href="#!"
-                        className="text-blue-600 hover:text-blue-700 focus:text-blue-700 active:text-blue-800 duration-200 transition ease-in-out"
-                        >Forgot password?</a
-                        >
-                    </div> */}
 
                     {/* Submit button */}
                     <button
@@ -187,6 +182,7 @@ console.debug('form data', data);
                     </a> */}
                     </form>
                 </div>
+                
                 </div>
             </div>
             </section>

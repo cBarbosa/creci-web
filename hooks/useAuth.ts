@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 import api from '../services/api';
 
@@ -20,9 +20,9 @@ export const useAuth = () => {
   
   const handleLogin = async (username:string, password: string) => {
 
-    if(!username || !password)
-      window.alert('Não autenticou');
-      // toast.error('Não autenticou');
+    if(!username || !password) {
+      toast.error('Não autenticou');
+    }
 
     try {
       const { data: { data: { accessToken } } } = await api.post('/api/Authentication', {
@@ -38,8 +38,7 @@ export const useAuth = () => {
 
     } catch (error) {
       // throw Error(error);
-      // toast.error(error);
-      console.log(error);
+      toast.error(`Credenciais de entrada inválidas, favor revisar`);
     }
   }
 
