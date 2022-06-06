@@ -18,6 +18,7 @@ import MapPages from './src/pages/maps/MapPage';
 import CustomerPage from './src/pages/register/customer';
 import SchedulePage from './src/pages/register/schedule';
 import App from './src/App';
+import CustomersListPage from './src/pages/customers/CustomersList';
 
 export interface IRoute extends RouteProps {
     isPrivate?: boolean
@@ -97,7 +98,7 @@ export default function Routes() {
               <Route
                 path="customer"
                 element={
-                    <CustomerPage />
+                    <CustomersListPage />
                 }
               />
               <Route
