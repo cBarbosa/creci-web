@@ -9,8 +9,8 @@ import {
 } from 'react-router-dom';
 import {
   AuthProvider
-} from './contexts/AuthContext';
-import { useAuth } from './hooks/useAuth';
+} from './src/contexts/AuthContext';
+import { useAuth } from './src/hooks/useAuth';
 
 import LoginPage from './src/pages/Login';
 import MapFormPages from './src/pages/maps/MapFormPage';
@@ -19,6 +19,12 @@ import CustomerPage from './src/pages/register/customer';
 import SchedulePage from './src/pages/register/schedule';
 import App from './src/App';
 import CustomersListPage from './src/pages/customers/CustomersList';
+import CustomerDetailPage from './src/pages/customers/CustomerDetail';
+import DashboardPage from './src/pages/Dashboard';
+import ProfilePage from './src/pages/external/Profile';
+import AppointmentPage from './src/pages/external/Appointment';
+import NotFoundPage from './src/pages/404';
+import CustomerCreatePage from './src/pages/customers/CustomerCreate';
 
 export interface IRoute extends RouteProps {
     isPrivate?: boolean
@@ -27,8 +33,7 @@ export interface IRoute extends RouteProps {
 function CustomRoute({ isPrivate, ...rest }: IRoute) {
   // const { loading, authenticated } = useAuth();
   // console.debug('CustomRoute', {authenticated, isPrivate, rest});
-  console.debug('rest', rest);
-
+  
   const loading = false;
   const authenticated = false;
 
@@ -80,7 +85,7 @@ const ProtectedRoute = ({
   children?: React.ReactNode
 }) => {
   if (!isAllowed) {
-    return <Navigate to={redirectPath} replace />;
+    return <Navigate to={redirectPath} replace={true} />;
   }
 
   return children ? children : <Outlet />;
@@ -90,22 +95,26 @@ export default function Routes() {
   
   return (
     <BrowserRouter>
-        <AuthProvider >
+        <AuthProvider>
           <RoutesV6>
             <Route index element={<LoginPage />} />
             <Route path='/login' element={<LoginPage />} />
-            <Route path='/app' element={<App />}>
+            <Route path='/app' element={<App />} >
               <Route
-                path="customer"
-                element={
-                    <CustomersListPage />
-                }
+                path="dashboard"
+                element={<DashboardPage />}
               />
               <Route
-                path="schedule"
-                element={
-                    <SchedulePage />
-                }
+                path='customer'
+                element={<CustomersListPage />}
+              >
+              </Route>
+              <Route path='customer/:uuid' element={<CustomerDetailPage />} />
+              <Route path='customer/create' element={<CustomerCreatePage />} />
+
+              <Route
+                path='schedule'
+                element={<SchedulePage />}
               />
             </Route>
             {/* <Route
@@ -133,10 +142,15 @@ export default function Routes() {
             /> */}
             {/* <Route path='/landing' element={<PaginaLanding />} /> */}
             <Route path='/maps'  >
-              <Route index element={<MapPages />}/>
-              <Route path='form' element={<MapFormPages />}/>
+              <Route index element={<MapPages />} />
+              <Route path='form' element={<MapFormPages />} />
             </Route>
-            <Route path="*" element={<p>There's nothing here: 404!</p>} />
+            <Route path='/query'  >
+              {/* <Route index element={<MapPages />}/> */}
+              <Route path='profile/:qrcode' element={<ProfilePage />} />
+              <Route path='appointment/:qrcode' element={<AppointmentPage />} />
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
             {/* <Route path='/login' element={<LoginPage/>} /> */}
             {/* <CustomRoute path='/' element={ <LoginPage /> } /> */}
             {/* <CustomRoute path="/login" element={ <LoginPage /> } /> */}
@@ -145,7 +159,7 @@ export default function Routes() {
             <CustomRoute isPrivate exact={true} path="/contracts/:id" component={ ListContracts } />
             <CustomRoute isPrivate exact={true} path="/contract/:id" component={ Contract } />
             <CustomRoute isPrivate exact={true} path="/contract-add" component={ AddContract } /> */}
-          </RoutesV6 >
+          </RoutesV6>
         </AuthProvider>
     </BrowserRouter>
   );

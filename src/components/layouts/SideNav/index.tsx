@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 export const SideNav = () => {
 
   const [open, setOpen] = React.useState(true);
+
   const Menus = [
     { title: "Dashboard", src: "Chart_fill", gap:false, link:'dashboard', icon:<Kanban color="white" weight="duotone" size={20} /> },
     { title: "Semana", src: "Chat", link:'schedule', icon:<Activity color="white" weight="duotone" size={20} /> },

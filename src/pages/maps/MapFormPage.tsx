@@ -5,7 +5,7 @@ import {
     StandaloneSearchBox
 } from '@react-google-maps/api';
 import React from 'react';
-import fetchIPGeoLocation from '../../../services/fetchIPGeoLocation';
+import fetchIPGeoLocation from '../../services/fetchIPGeoLocation';
 import { useQuery } from 'react-query';
 
 export interface IMapFormPagesProps {};

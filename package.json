@@ -13,6 +13,7 @@
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
     "phosphor-react": "^1.4.1",
+    "qrcode.react": "^3.0.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-hook-form": "^7.31.3",

@@ -1,5 +1,5 @@
 import axios from 'axios';
- import { toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const API_URI = import.meta.env.VITE_API_URI;
 
@@ -7,10 +7,23 @@ const axiosService = axios.create({
     baseURL: API_URI
 });
 
+
+    // if (token) {
+    //   api.defaults.headers.common['Authorization'] = `Bearer ${JSON.parse(token)}`;
+    //   setAuthenticated(true);
+    // }
+
 axiosService.interceptors.request.use(
     async config => {
         const value = await config;
-        console.debug('InterceptorRequest',value);
+        // console.debug('InterceptorRequest',value);
+        const token = localStorage.getItem('token');
+        if(token) {
+            config.headers = {
+                'Authorization': `Bearer ${JSON.parse(token)}`,
+                'Accept': 'application/json'
+          }
+        }
         return config;
     },
     error => {
@@ -18,12 +31,12 @@ axiosService.interceptors.request.use(
     });
 
 axiosService.interceptors.response.use((response) => {
-console.debug('InterceptorResponse', response);
+// console.debug('InterceptorResponse', response);
     return response;
 }, async function (error) {
     
     const originalRequest = error.config;
-    console.debug('InterceptorResponse', `error response interceptor`, originalRequest);
+    // console.debug('InterceptorResponse', `error response interceptor`, originalRequest);
 
     if(error.message === 'Network Error' && !error.response) {
         toast.error(`Netowrk error - make sure API is running`);

@@ -1,11 +1,11 @@
 import React, {
-  createContext,
-  ReactNode
+  createContext
 } from 'react';
-
 import { useAuth } from '../hooks/useAuth';
+import { IUser } from '../models/User';
 
 type AuthContextType = {
+  user: null | IUser;
   loading: boolean;
   authenticated: boolean;
   handleLogin: (username:string, password:string) => Promise<void>;
@@ -20,11 +20,11 @@ const Context = createContext<AuthContextType>({} as AuthContextType);
 
 function AuthProvider(props: AuthContextProviderProps) {
   const {
-    authenticated, loading, handleLogin, handleLogout,
+    user, authenticated, loading, handleLogin, handleLogout,
   } = useAuth();
 
   return (
-    <Context.Provider value={{ loading, authenticated, handleLogin, handleLogout }}>
+    <Context.Provider value={{ user, loading, authenticated, handleLogin, handleLogout }}>
       { props.children }
     </Context.Provider>
   );

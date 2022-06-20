@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { phoneNumber } from '../../utils/validations';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { LoginFormData } from '../../models/User';
+import { LoginFormData } from '../models/User';
 import InputMask from 'react-input-mask';
-import { useAuth } from '../../hooks/useAuth';
+import { LoadingSpin } from '../components/LoadingSpin';
+import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
 
 export interface ILoginPageProps {};
@@ -52,8 +52,6 @@ const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
 
     function beforeMaskedStateChange({ nextState }:any) {
 
-console.log(nextState);
-
         let { value } = nextState;
         if (value.endsWith(".") || value.endsWith("-")) {
           value = value.slice(0, -1);
@@ -71,7 +69,7 @@ console.log(nextState);
     };
 
     if(loading) {
-        return <h1>loading</h1>
+        return <LoadingSpin />;
     }
 
     return(
