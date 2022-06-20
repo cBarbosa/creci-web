@@ -25,6 +25,7 @@ import ProfilePage from './src/pages/external/Profile';
 import AppointmentPage from './src/pages/external/Appointment';
 import NotFoundPage from './src/pages/404';
 import CustomerCreatePage from './src/pages/customers/CustomerCreate';
+import AddressDetailPage from './src/pages/addresses/AddressDetail';
 
 export interface IRoute extends RouteProps {
     isPrivate?: boolean
@@ -111,6 +112,8 @@ export default function Routes() {
               </Route>
               <Route path='customer/:uuid' element={<CustomerDetailPage />} />
               <Route path='customer/create' element={<CustomerCreatePage />} />
+
+              <Route path='address/:uuid' element={<AddressDetailPage />} />
 
               <Route
                 path='schedule'
