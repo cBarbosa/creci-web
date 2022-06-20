@@ -105,19 +105,13 @@ export default function Routes() {
                 path="dashboard"
                 element={<DashboardPage />}
               />
-              <Route
-                path='customer'
-                element={<CustomersListPage />}
-              >
-              </Route>
+              <Route path='customer' element={<CustomersListPage />} />
               <Route path='customer/:uuid' element={<CustomerDetailPage />} />
               <Route path='customer/create' element={<CustomerCreatePage />} />
 
               <Route path='address/:uuid' element={<AddressDetailPage />} />
 
-              <Route
-                path='schedule'
-                element={<SchedulePage />}
+              <Route path='schedule' element={<SchedulePage />}
               />
             </Route>
             {/* <Route

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export interface IDashboardPageProps {};
@@ -9,13 +10,25 @@ const DashboardPage: React.FunctionComponent<IDashboardPageProps> = (props) => {
 
     return(
         <>
-            <h1>Dashboard</h1>
-            <div className="p-4 mb-4 text-sm text-yellow-700 bg-yellow-100 rounded-lg dark:bg-yellow-200 dark:text-yellow-800" role="alert">
-                <span className="font-medium">Info alert!</span> Change a few things up and try submitting again.
+            <nav className="bg-gray-50 p-3 rounded font-sans w-full m-4 ml-0">
+                <ol className="list-reset flex text-gray-700">
+                    <li>
+                        <Link to='/app' className="text-blue-900 font-bold">Home</Link>
+                    </li>
+                    <li><span className="mx-2">/</span></li>
+                    <li>Dashboard</li>
+                </ol>
+            </nav>
+
+            <div className="px-10 flex items-center align-middle">
+                <div className="w-full p-4 mb-4 text-sm text-yellow-700 bg-yellow-100 rounded-lg" role="alert">
+                    <span className="font-medium">Atenção!</span> Verifique junto ao CRECI as informações de pagamento.
+                </div>
             </div>
+
             {user?.nome}
 
-            <div className="flex h-screen items-center">
+            <div className="flex items-center">
                 <div className="px-10 mx-auto container align-middle">
                     <div className="grid grid-cols-2 gap-2">
                         <div className="shadow rounded-lg py-3 px-5 bg-white">
