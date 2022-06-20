@@ -8,6 +8,8 @@ export interface CustomerFormData {
 };
 
 export interface IAddress {
+    title?: string;
+    description?: string;
     state?: string;
     street?: string;
     city?:string;
@@ -23,11 +25,15 @@ export type CustomerType = {
     name: string;
     email: string;
     phone: string;
+    formatedPhone?: string;
     addresses: AddressType[];
 };
 
 export type AddressType = {
     uuid: string;
+    customerUuid?: string;
+    title?: string;
+    description?: string;
     state?: string;
     street?: string;
     number?: string;
@@ -37,3 +43,8 @@ export type AddressType = {
     lat?: number;
     lng?: number;
 };
+
+export interface Estado {
+    sigla: string
+    nome: string
+}

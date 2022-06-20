@@ -1,11 +1,11 @@
 import React from "react";
 import InputMask from 'react-input-mask';
 
-const onlyNumbers = (str) => str.replace(/[^0-9]/g, '');
+const onlyNumbers = (str:any) => str.replace(/[^0-9]/g, '');
 
-export const MaskedInput = ({ mask, name, value, onChange }) => {
+export const MaskedInput = ({ mask, name, value, onChange }:any) => {
 
-    const handleChange = (event) => {
+    const handleChange = (event:any) => {
         onChange && onChange({
             ...event,
             target: {
