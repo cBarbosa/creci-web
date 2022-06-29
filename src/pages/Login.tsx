@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -7,13 +7,17 @@ import InputMask from 'react-input-mask';
 import { LoadingSpin } from '../components/LoadingSpin';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
-export interface ILoginPageProps {};
+export interface ILoginPageProps {
+    isLogged?: boolean;
+};
 
-const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
+const LoginPage: React.FunctionComponent<ILoginPageProps> = ({ isLogged }) => {
 
-    const { handleLogin, authenticated } = useAuth();
-    const [loading, setLoading] = useState(false);
+    const { handleLogin } = useAuth();
+    const [loading, setLoading] = React.useState(false);
+    const navigate = useNavigate();
 
     const validationSchema = yup.object().shape({
         username: yup.string().required(),
@@ -30,15 +34,6 @@ const LoginPage: React.FunctionComponent<ILoginPageProps> = (props) => {
         defaultValues: initialValues,
         resolver: yupResolver(validationSchema)
     });
-
-    const _handleFormSubmit = async (e:any) => {
-        e.preventDefault();
-
-        let email = e.target.elements.email?.value;
-        let password = e.target.elements.password?.value;
-
-        console.log(email, password);
-    };
 
     const onSubmit = async (data: LoginFormData) => {
         setLoading(true);

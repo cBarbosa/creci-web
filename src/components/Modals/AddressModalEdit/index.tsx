@@ -2,10 +2,10 @@ import React from "react";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { AddressType, Estado } from "../../../models/Customer";
+import { AddressFormData, AddressType } from "../../../models/Customer";
 import { toast } from 'react-toastify';
 import { X } from "phosphor-react";
-import api from "../../../services/api";
+import { STATES_OF_BRAZIL, UpdateAddress } from "../../../services/address";
 
 interface AddressModalEditProps {
     address: AddressType;
@@ -31,45 +31,39 @@ export const AddressModalEdit = (
         zipcode: yup.string().required(`CEP deve ser informado`)
     });
 
+    const initialValues = {
+        uuid: address.uuid,
+        title: address.title,
+        description: address.description,
+        state: address.state,
+        street: address.street,
+        city: address.city,
+        neighborhood: address.neighborhood,
+        zipcode: address.zipcode,
+        number: address.number,
+        customerUuid: address.customerUuid
+    };
+
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
-        defaultValues: address,
+        defaultValues: initialValues,
         resolver: yupResolver(validationSchema)
     });
 
-    const estados: Estado[] = [
-        { sigla: 'AC', nome: 'Acre' },
-        { sigla: 'AL', nome: 'Alagoas' },
-        { sigla: 'AP', nome: 'Amapá' },
-        { sigla: 'AM', nome: 'Amazonas' },
-        { sigla: 'BA', nome: 'Bahia' },
-        { sigla: 'CE', nome: 'Ceará' },
-        { sigla: 'DF', nome: 'Distrito Federal' },
-        { sigla: 'ES', nome: 'Espírito Santo' },
-        { sigla: 'GO', nome: 'Goiás' },
-        { sigla: 'MA', nome: 'Maranhão' },
-        { sigla: 'MT', nome: 'Mato Grosso' },
-        { sigla: 'MS', nome: 'Mato Grosso do Sul' },
-        { sigla: 'MG', nome: 'Minas Gerais' },
-        { sigla: 'PA', nome: 'Pará' },
-        { sigla: 'PB', nome: 'Paraíba' },
-        { sigla: 'PR', nome: 'Paraná' },
-        { sigla: 'PE', nome: 'Pernambuco' },
-        { sigla: 'PI', nome: 'Piauí' },
-        { sigla: 'RJ', nome: 'Rio de Janeiro' },
-        { sigla: 'RN', nome: 'Rio Grande do Norte' },
-        { sigla: 'RS', nome: 'Rio Grande do Sul' },
-        { sigla: 'RO', nome: 'Rondônia' },
-        { sigla: 'RR', nome: 'Roraima' },
-        { sigla: 'SC', nome: 'Santa Catarina' },
-        { sigla: 'SP', nome: 'São Paulo' },
-        { sigla: 'SE', nome: 'Sergipe' },
-        { sigla: 'TO', nome: 'Tocantins' }
-    ];
-
-    const onAddressSubmit = async (data: AddressType) => {
+    const onAddressSubmit = async (data: AddressFormData) => {
         setLoading(true);
 
-        await api.post(`api/customer/address`,data).then(result => {
+        await UpdateAddress({
+            uuid: data.uuid,
+            title: data.title,
+            description: data.description,
+            state: data.state,
+            street: data.street,
+            city: data.city,
+            neighborhood: data.neighborhood,
+            zipcode: data.zipcode,
+            number: data.number,
+            customerUuid: data.customerUuid
+        } as AddressType).then(result => {
             if(!result.data.success) {
                 toast.error(result.data.message);
                 return;
@@ -133,6 +127,7 @@ export const AddressModalEdit = (
                                     Nome do Imóvel
                                     <input
                                         type="text"
+                                        maxLength={70}
                                         placeholder="Nome do imóvel"
                                         className={classValues.inputText}
                                         {...register('title')}
@@ -152,6 +147,7 @@ export const AddressModalEdit = (
                                         <input
                                             type="text"
                                             placeholder="CEP do imóvel"
+                                            maxLength={20}
                                             className={classValues.inputText}
                                             {...register('zipcode')}
                                         />
@@ -170,7 +166,7 @@ export const AddressModalEdit = (
                                             {...register('state')}
                                         >
                                             <option> -=[ Escolha o estado ]=-</option>
-                                            {estados.map(estado => {
+                                            {STATES_OF_BRAZIL.map(estado => {
                                                 return <option key={estado.sigla} value={estado.sigla}>{estado.nome}</option>
                                             })}
                                         </select>
@@ -284,7 +280,7 @@ export const AddressModalEdit = (
                         <button
                             type='button'
                             className="text-cyan-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                            onClick={() => { reset(address); }}
+                            onClick={() => { reset(initialValues); }}
                         >
                             Resetar
                         </button>

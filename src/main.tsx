@@ -6,14 +6,22 @@ import Routes from '../Routes';
 
 import './index.css';
 import 'react-toastify/dist/ReactToastify.css';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <Routes />
-      <ToastContainer />
+      <BrowserRouter>
+        <AuthProvider>
+          <>
+            <Routes />
+            <ToastContainer />
+          </>
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>
 )

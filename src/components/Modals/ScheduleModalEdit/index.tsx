@@ -1,76 +1,111 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { CustomerType } from "../../../models/Customer";
-import InputMask from 'react-input-mask';
 import { toast } from 'react-toastify';
 import { X } from "phosphor-react";
-import { UpdateCustomer } from "../../../services/customer";
+import {
+    TIMES_TO_SCHEDULE,
+    UpdateSchedule
+} from "../../../services/schedule";
+import {
+    GetCustomersVisitors
+} from "../../../services/customer";
+import { ScheduleFormData, ScheduleType } from "../../../models/Schedule";
+import { CustomerType } from "../../../models/Customer";
 
-interface CustomerModalEditProps {
-    customer: CustomerType;
+interface ScheduleModalEditProps {
+    schedule: ScheduleType;
     setShowModal: (show: boolean) => void;
     setLoading: (loading: boolean) => void;
-    setCustomer: (customer: CustomerType) => void;
+    reload: () => Promise<void>;
 };
 
-type CustomerEdit = {
-    uuid: string;
-    name: string;
-    email: string;
-    phone?: string;
-    document?: string;
-};
-
-export const CustomerModalEdit = (
+export const ScheduleModalEdit = (
     {
-        customer,
+        schedule,
         setShowModal,
         setLoading,
-        setCustomer
-    }: CustomerModalEditProps) => {
+        reload
+    }: ScheduleModalEditProps) => {
+
+    const initialValues = {
+            uuid: schedule.uuid,
+            customerUuid: schedule.customerUuid,
+            addressUuid: schedule.addressUuid,
+            date: `${schedule.formatedDate?.split('/')[2]}-${schedule.formatedDate?.split('/')[1]}-${schedule.formatedDate?.split('/')[1]}`,
+            time: schedule.formatedTime,
+            status: schedule.status
+        } as ScheduleFormData;
+
+    const [customers, setCustomers] = React.useState<CustomerType[]>([]);
 
     const validationCustomerSchema = yup.object().shape({
-        name: yup.string().required(`Nome do cliente deve ser informado`).min(5, 'Nome deve conter um nome válido'),
-        email: yup.string().email(`Formato de email inválido`).required(`Email deve ser informado`),
-        phone: yup.string().notRequired()
+        customerUuid: yup.string().required(`Nome do cliente deve ser informado`).min(5, 'Nome deve conter um nome válido'),
+        date: yup.date().required(`Data da visita precisa ser informado`).min(new Date, 'Data deve ser maior que a atual'),
+        time: yup.string().required(`Hora da visita precisa ser informado`)
     });
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
-        defaultValues: {
-            uuid: customer.uuid,
-            name: customer.name,
-            email: customer.email,
-            phone: customer.phone,
-            document: customer.document
-        } as CustomerEdit,
+        defaultValues: initialValues,
         resolver: yupResolver(validationCustomerSchema)
     });
 
-    const onCustomerSubmit = async (data: CustomerEdit) => {
-        setLoading(true);
+    const _UpdateScheduleDB = async (data: ScheduleType) => {
 
-        await UpdateCustomer(data).then(result => {
+        await UpdateSchedule(data).then(result => {
             if(!result.data.success) {
                 toast.error(result.data.message);
                 return;
             }
             toast.success(result.data.message);
-            setShowModal(false);
-            setCustomer(result?.data?.data);
         })
         .catch((error) => {
             console.log(error);
             toast.error(error);
         });
-
-        setLoading(false);
     };
 
-    const onCustomerError = (error: any) => {
+    const formatDBDate = (inputDate: Date, inputTime: string) : string => {
+        return `${inputDate.getFullYear()}-${('0' + (inputDate.getMonth()+1)).slice(-2)}-${('0' + inputDate.getDate()).slice(-2)}T${inputTime}:00.000`;
+    };
+
+    const onScheduleSubmit = async (data: ScheduleFormData) => {
+        setLoading(true);
+        await _UpdateScheduleDB({
+                uuid: data.uuid,
+                status: data.status,
+                customerUuid: data.customerUuid,
+                addressUuid: data.addressUuid,
+                date: formatDBDate(new Date(data.date), data.time)
+            } as ScheduleType);
+        
+        setLoading(false);
+        await reload();
+        setShowModal(false);
+    };
+
+    const onScheduleError = (error: any) => {
         toast.error(error);
     };
+
+    const _getCustomersVisitorsDB = async () => {
+        await GetCustomersVisitors(1, 999).then(result => {
+            if(result?.data?.success) {
+                setCustomers(result?.data?.data?.items);
+            }
+        })
+        .finally(()=> {
+            reset(initialValues);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    };
+
+    useEffect(() => {
+        _getCustomersVisitorsDB();
+    }, []);
 
     const classValues = {
         "inputText": "w-full px-4 py-2 mt-2 mr-4 text-base text-black transition duration-500 ease-in-out transform rounded-lg bg-gray-100 focus:border-blueGray-500 focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2",
@@ -90,7 +125,7 @@ export const CustomerModalEdit = (
                     {/*header*/}
                     <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
                         <h3 className="text-3xl font-semibold">
-                            Editar informações do cliente
+                            Editar informações da visita
                         </h3>
                         <button
                             className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
@@ -104,78 +139,68 @@ export const CustomerModalEdit = (
                     {/*body*/}
                     
                     <form
-                            onSubmit={handleSubmit(onCustomerSubmit, onCustomerError)}
+                            onSubmit={handleSubmit(onScheduleSubmit, onScheduleError)}
                     >
+                    <div className="pt-4 px-4 flex items-center align-middle">
+                        <div className="w-full p-4 mb-4 text-sm text-yellow-700 bg-yellow-100 rounded-lg" role="alert">
+                            <span className="font-medium">Atenção!</span> {schedule.status === 1 && "Aguardando confirmação do cliente"}
+                        </div>
+                    </div>
                     <div className="flex flex-col w-full px-4 transition duration-500 ease-in-out transform bg-white">
-                        
-                            <div className="py-4">
+
+                            <div className="relative py-4">
                                 <label className="text-base leading-7 text-blueGray-500">
-                                    Nome
+                                    Visitante
+                                    <select
+                                    className="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform rounded-lg bg-gray-100 focus:border-blueGray-500 focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2"
+                                        {...register('customerUuid')}
+                                    >
+                                        <option value=''> -=[ Escolha o visitante ]=- </option>
+                                        {customers.map(customer => {
+                                            return <option key={customer.uuid} value={customer.uuid}>{customer.name}</option>
+                                        })}
+                                    </select>
+                                </label>
+                                {errors?.customerUuid?.type && (
+                                    <div className="text-red-600">
+                                        {errors.customerUuid.message}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="relative pt-4">
+                                <label className="text-base leading-7 text-blueGray-500">
+                                    Data da Visita
                                     <input
-                                        type="text"
-                                        placeholder="Nome do cliente"
-                                        className={classValues.inputText}
-                                        {...register('name')}
+                                        type="date"
+                                        placeholder="Data da Visita"
+                                        className="w-full px-4 py-2 mt-2 mr-4 text-base text-black transition duration-500 ease-in-out transform rounded-lg bg-gray-100 focus:border-blueGray-500 focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2"
+                                        {...register('date')}
                                     />
                                 </label>
-                                {errors?.name?.type && (
+                                {errors?.date?.type && (
                                     <div className="text-red-600">
-                                        {errors.name.message}
+                                        {errors.date.message}
                                     </div>
                                 )}
                             </div>
 
                             <div className="relative py-4">
                                 <label className="text-base leading-7 text-blueGray-500">
-                                    Email
-                                    <input
-                                        type="text"
-                                        placeholder="Email do cliente"
-                                        className={classValues.inputText}
-                                        {...register('email')}
-                                    />
+                                    Hora da Visita
+                                    <select
+                                        className="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform rounded-lg bg-gray-100 focus:border-blueGray-500 focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2"
+                                        {...register('time')}
+                                    >
+                                        <option value=''> -=[ Escolha a hora ]=- </option>
+                                        {TIMES_TO_SCHEDULE.map((time, index) => {
+                                            return <option key={index} value={time.value}>{time.description}</option>
+                                        })}
+                                    </select>
                                 </label>
-                                {errors?.email?.type && (
+                                {errors?.time?.type && (
                                     <div className="text-red-600">
-                                        {errors.email.message}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="relative py-4">
-                                <label className="text-base leading-7 text-blueGray-500">
-                                    Telefone Móvel
-                                    <InputMask
-                                        mask="(99) 99999-9999"
-                                        className={classValues.inputText}
-                                        placeholder="Telefone do cliente Ex: (99) 99999-9999"
-                                        alwaysShowMask={false}
-                                        maskPlaceholder={null}
-                                        {...register('phone')}
-                                    />
-                                </label>
-                                {errors?.phone?.type && (
-                                    <div className="text-red-600">
-                                        {errors.phone.message}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="relative py-4">
-                                <label className="text-base leading-7 text-blueGray-500">
-                                    CPF
-                                    <InputMask
-                                        mask="999.999.999-99"
-                                        className={classValues.inputText}
-                                        placeholder="CPF do cliente Ex: 999.999.999-99"
-                                        alwaysShowMask={false}
-                                        maskPlaceholder={null}
-                                        {...register('document')}
-                                    />
-                                </label>
-                                {errors?.document?.type && (
-                                    <div className="text-red-600">
-                                        {errors.document.message}
+                                        {errors.time.message}
                                     </div>
                                 )}
                             </div>
@@ -194,13 +219,7 @@ export const CustomerModalEdit = (
                             type='button'
                             className="text-cyan-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                             onClick={() => {
-                                reset({
-                                    uuid: customer.uuid,
-                                    name : customer.name,
-                                    email: customer.email,
-                                    phone: customer.phone,
-                                    document: customer.document
-                                });
+                                reset(initialValues);
                             }}
                         >
                             Resetar
@@ -208,8 +227,9 @@ export const CustomerModalEdit = (
                         <button
                             className="bg-blue-500 text-white active:bg-blue-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                             type="submit"
+                            // onClick={() => console.debug('action')}
                         >
-                            Confirma
+                            Confirma 
                         </button>
                     </div>
                     </form>

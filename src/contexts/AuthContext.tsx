@@ -6,7 +6,7 @@ import { IUser } from '../models/User';
 
 type AuthContextType = {
   user: null | IUser;
-  loading: boolean;
+  // loading: boolean;
   authenticated: boolean;
   handleLogin: (username:string, password:string) => Promise<void>;
   handleLogout: () => void;
@@ -19,12 +19,13 @@ type AuthContextProviderProps = {
 const Context = createContext<AuthContextType>({} as AuthContextType);
 
 function AuthProvider(props: AuthContextProviderProps) {
+
   const {
     user, authenticated, loading, handleLogin, handleLogout,
   } = useAuth();
 
   return (
-    <Context.Provider value={{ user, loading, authenticated, handleLogin, handleLogout }}>
+    <Context.Provider value={{ user, authenticated, handleLogin, handleLogout }}>
       { props.children }
     </Context.Provider>
   );

@@ -1,16 +1,13 @@
 import React from 'react';
 
-export interface ISchedulePageProps {};
-
-const SchedulePage: React.FunctionComponent<ISchedulePageProps> = (props) => {
-    return(
+export const ScheduleWeek = () => {
+  
+  return (
         <>
-            <h1>Schedule</h1>
-
-            <div className="flex justify-center p-24 bg-gray-100">
+            <div className="flex justify-center p-16 bg-gray-100">
                 <div className="bg-white rounded-lg w-2/3 lg:w-1/2 xl:w-1/3 p-4 shadow">
                     <div>
-                    <span className="text-gray-900 relative inline-block date uppercase font-medium tracking-widest">Quarta 8</span>
+                    <span className="text-gray-900 relative inline-block date uppercase font-medium tracking-widest">Quarta-feira, 8</span>
                     <div className="flex mb-2">
                         <div className="w-2/12">
                         <span className="text-sm text-gray-600 block">8:00</span>
@@ -52,7 +49,8 @@ const SchedulePage: React.FunctionComponent<ISchedulePageProps> = (props) => {
                     </div>
                     </div>
                     <div>
-                    <span className="text-gray-900 relative inline-block date uppercase font-medium tracking-widest">Quinta 9</span>
+
+                    <span className="text-gray-900 relative inline-block date uppercase font-medium tracking-widest">Quinta-faira, 9</span>
                     <div className="flex mb-2">
                         <div className="w-2/12">
                         <span className="text-sm text-gray-600 block">8:00</span>
@@ -85,5 +83,3 @@ const SchedulePage: React.FunctionComponent<ISchedulePageProps> = (props) => {
         </>
     );
 };
-
-export default SchedulePage;

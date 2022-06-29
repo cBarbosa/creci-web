@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-export interface INotFoundPageProps {};
 
-const NotFoundPage: React.FunctionComponent<INotFoundPageProps> = (props) => {
+export interface IForbidenPageProps {};
+
+const ForbidenPage: React.FunctionComponent<IForbidenPageProps> = (props) => {
 
     const iconGreen = (
         <svg
@@ -217,16 +218,16 @@ const NotFoundPage: React.FunctionComponent<INotFoundPageProps> = (props) => {
             <div className="h-screen w-screen bg-gray-50 flex items-center">
                 <div className="container flex flex-col md:flex-row items-center justify-between px-5 text-gray-700">
                         <div className="w-full lg:w-1/2 mx-8">
-                            <div className="text-7xl text-blue-500 font-dark font-extrabold mb-8"> 404</div>
+                            <div className="text-7xl text-blue-500 font-dark font-extrabold mb-8"> 403</div>
                         <p className="text-2xl md:text-3xl font-light leading-normal mb-8">
-                            Sorry we couldn't find the page you're looking for
+                            Sorry we couldn't show the page you're trying to
                         </p>
 
                         <Link
-                            to={`/app`}
+                            to={`/login`}
                             className="px-5 inline py-3 text-sm font-medium leading-5 shadow-2xl text-white transition-all duration-400 border border-transparent rounded-lg focus:outline-none bg-blue-600 active:bg-red-600 hover:bg-red-700"
                         >
-                            back to homepage
+                            back to login
                         </Link>
                         
                         {/* <a href="#" >back to homepage</a> */}
@@ -243,4 +244,4 @@ const NotFoundPage: React.FunctionComponent<INotFoundPageProps> = (props) => {
     );
 };
 
-export default NotFoundPage;
+export default ForbidenPage;

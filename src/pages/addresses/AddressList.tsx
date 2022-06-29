@@ -2,39 +2,36 @@ import React, {
     useEffect,
     useState
 } from 'react';
-import {
-    CustomerType
-} from '../../models/Customer';
 import { useNavigate } from 'react-router-dom';
 import {
     ArrowSquareOut,
-    Envelope,
-    ListDashes,
+    HouseLine,
+    MapPin,
     Plus,
     UserCircle,
     X
 } from 'phosphor-react';
 import { Link } from 'react-router-dom';
 import { LoadingSpin } from '../../components/LoadingSpin';
-import { GetCustomers } from '../../services/customer';
+import { GetAddresses } from '../../services/address';
+import { AddressType } from '../../models/Address';
 
-export interface ICustomersListPageProps {};
+export interface IAddressListPageProps {};
 
-const CustomersListPage: React.FunctionComponent<ICustomersListPageProps> = (props) => {
-    
+const AddressListPage: React.FunctionComponent<IAddressListPageProps> = (props) => {
     const [loading, setLoading] = useState(false);
-    const [customers, setCustomers] = useState<CustomerType[]>([]);
+    const [addresses, setAddresses] = useState<AddressType[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        _getCustomersDB();
+        setLoading(true);
+        getAddressesDB();
     }, []);
 
-    const _getCustomersDB = async () => {
-        setLoading(true);
-        await GetCustomers(1, 100).then(result => {
+    const getAddressesDB = async () => {
+        GetAddresses(1, 99).then(result => {
             if(result?.data?.success) {
-                setCustomers(result?.data?.data?.items);
+                setAddresses(result?.data?.data?.items);
             }
         })
         .finally(()=> {
@@ -46,7 +43,7 @@ const CustomersListPage: React.FunctionComponent<ICustomersListPageProps> = (pro
     };
 
     const handleNavigateTo = async (uuid:string) => {
-        navigate(`/app/customer/${uuid}`, { replace: true });
+        navigate(`/app/address/${uuid}`, { replace: true });
     };
 
     if(loading) {
@@ -61,18 +58,17 @@ const CustomersListPage: React.FunctionComponent<ICustomersListPageProps> = (pro
                         <Link to='/app' className="text-blue-900 font-bold">Home</Link>
                     </li>
                     <li><span className="mx-2">/</span></li>
-                    <li>Clientes</li>
+                    <li>Imóveis</li>
                 </ol>
             </nav>
 
             <div className='p-4 font-thin flex justify-between content-center'>
-                {customers.length == 0 && <span>Nenhum cliente cadastrado</span>}
-                {customers.length > 0 && <span>Total {customers.length} Clientes</span>}
+                {addresses.length == 0 && <span>Nenhum imóvel cadastrado</span>}
+                {addresses.length > 0 && <span>Total {addresses.length} Imóveis</span>}
                 <div>
                     <button
                         className="flex justify-between content-center gap-2 bg-blue-500 text-white active:bg-blue-600 font-bold text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                         type="button"
-                        onClick={() => navigate(`/app/customer/create`, { replace: true })}
                     >
                         <Plus size={20} color={`white`}/>
                         Adicionar
@@ -80,24 +76,24 @@ const CustomersListPage: React.FunctionComponent<ICustomersListPageProps> = (pro
                 </div>
             </div>
 
-            {customers.map((customer, index) => {
+            {addresses.map((address, index) => {
                 return (
                     <div className='px-3' key={index}>
                         <div
-                            onClick={() => handleNavigateTo(customer.uuid)}
+                            onClick={() => handleNavigateTo(address.uuid)}
                             className="p-4 mb-4 rounded-lg flex items-center bg-slate-200 border-2 border-slate-300 shadow-md hover:bg-slate-100 cursor-pointer"
                         >
-                            <UserCircle size={72} color="#737882" weight="duotone" />
+                            <HouseLine size={72} color="#737882" weight="duotone" />
 
                             <div className="w-full space-y-1 font-medium">
-                                <div>{customer.name}</div>
+                                <div>{address.title}</div>
                                 <div className="flex text-sm text-gray-500 gap-1">
-                                    <Envelope size={20} color="#737882" weight="duotone" />
-                                    <span>{customer.email}</span>
+                                    <MapPin size={18} color="#737882" weight="duotone" />
+                                    <span>{address.city} / {address.state}</span>
                                 </div>
                                 <div className="flex font-light text-sm text-gray-500 gap-1">
-                                    <ListDashes size={20} color="#737882" weight="duotone" />
-                                    <span>{customer.addresses?.length} Imóveis cadastrados</span>
+                                    <UserCircle size={18} color="#737882" weight="duotone" />
+                                    <span>{address.customer?.name}</span>
                                 </div>
                             </div>
                             <div className="right m-auto mr-0">
@@ -124,4 +120,4 @@ const CustomersListPage: React.FunctionComponent<ICustomersListPageProps> = (pro
         );
 };
 
-export default CustomersListPage;
+export default AddressListPage;

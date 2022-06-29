@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-import { AddressType, CustomerType } from '../../models/Customer';
-import api from '../../services/api';
+import { CustomerType } from '../../models/Customer';
 import {
     ArrowSquareOut,
     CalendarCheck,
@@ -21,6 +20,9 @@ import { CustomerModalEdit } from '../../components/Modals/CustomerModalEdit';
 import { ModalCustom } from '../../components/Modals/ModalCustom';
 import { AddressModalEdit } from '../../components/Modals/AddressModalEdit';
 import { AddressModalAdd } from '../../components/Modals/AddressModalAdd';
+import { GetCustomerByUUID } from '../../services/customer';
+import { DeleteAddress } from '../../services/address';
+import { AddressType } from '../../models/Address';
 
 export interface ICustomerDetailPageProps {};
 
@@ -42,7 +44,7 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
      }, []);
 
     const _getCustomerFromDB = async () => {
-        api.get(`/api/Customer/${uuid}`).then(result => {
+        await GetCustomerByUUID(uuid!).then(result => {
             if(result?.data?.success) {
                 setCustomer(result?.data?.data);
             }
@@ -65,7 +67,7 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
     const _handleDeleteCustomer = async () => {
         setLoading(true);
 
-        await api.delete(`api/customer/${uuid}`).then(result => {
+        await GetCustomerByUUID(uuid!).then(result => {
             if(!result.data.success) {
                 toast.error(result.data.message);
                 return;
@@ -84,8 +86,7 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
 
     const _handleDeleteAddress = async () => {
         setLoading(true);
-
-        await api.delete(`api/customer/address/${address?.uuid}`).then(result => {
+        await DeleteAddress(address?.uuid!).then(result => {
             if(!result.data.success) {
                 toast.error(result.data.message);
                 return;
@@ -134,7 +135,8 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
                     <div className="flex items-center mb-6 space-x-4">
                         <UserCircle size={48} color="#737882" weight="regular" />
                         <div className="space-y-1 font-medium dark:text-gray-900">
-                            <span className='uppercase'>{customer?.name}</span>
+                            <span className='uppercase'>{customer?.name}</span><br />
+                            <span className='text-sm font-thin'>{customer?.formatedDocument}</span>
                             <div className="flex items-center text-sm text-gray-500 gap-1">
                                 <Envelope size={20} color="#737882" weight="duotone" />
                                 <span className='lowercase'>
@@ -249,7 +251,7 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
                                                         <NotePencil size={20} color={`green`} className='cursor-pointer' onClick={() => _handleShowEditAddress(address)} />
                                                     </div>
                                                     <div>
-                                                        <Link to={'/app/customer'} className='hover:color'>
+                                                        <Link to={`/app/address/${address.uuid}`} className='hover:color'>
                                                             <ArrowSquareOut size={20} color="#737882" weight="duotone" />
                                                         </Link>
                                                     </div>

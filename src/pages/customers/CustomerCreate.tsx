@@ -3,12 +3,12 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { phoneNumber } from '../../../utils/validations';
 import { yupResolver } from '@hookform/resolvers/yup';
-import api from '../../services/api';
-import { CustomerFormData } from '../../models/Customer';
+import { CustomerFormData, CustomerType } from '../../models/Customer';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import InputMask from 'react-input-mask';
 import { LoadingSpin } from '../../components/LoadingSpin';
+import { CreateCustomer } from '../../services/customer';
 
 export interface ICustomerCreatePageProps {};
 
@@ -18,17 +18,21 @@ const CustomerCreatePage: React.FunctionComponent<ICustomerCreatePageProps> = (p
     const [loading, setLoading] = React.useState(false);
 
     const validationSchema = yup.object().shape({
+        type: yup.number().required(),
         name: yup.string().required(`Nome do cliente deve ser informado`).min(5, 'Nome deve conter um nome válido'),
         email: yup.string().email(`Formato de email inválido`).required(`Email deve ser informado`),
         // phone: yup.string().matches(phoneNumber, 'Telefone com formato inválido').notRequired()
-        phone: yup.string().notRequired()
+        phone: yup.string().notRequired(),
+        document: yup.string().notRequired()
     });
 
     const initialValues = {
+        type: 1,
         name: '',
         email: '',
-        phone: ''
-    };
+        phone: '',
+        document: ''
+    } as CustomerFormData;
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: initialValues,
@@ -38,7 +42,12 @@ const CustomerCreatePage: React.FunctionComponent<ICustomerCreatePageProps> = (p
     const onSubmit = async (data: CustomerFormData) => {
         setLoading(true);
 
-        await api.put(`api/customer/create`,data).then(result => {
+        await CreateCustomer({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            document: data.document
+        } as CustomerType).then(result => {
             if(!result.data.success) {
                 toast.error(result.data.message);
                 return;
@@ -93,6 +102,24 @@ const CustomerCreatePage: React.FunctionComponent<ICustomerCreatePageProps> = (p
                 onSubmit={handleSubmit(onSubmit, onError)}
             >
 
+                <div className="relative py-4">
+                    <label className="text-base leading-7 text-blueGray-500">
+                        Tipo de Cliente
+                        <select
+                        className="w-full px-4 py-2 mt-2 text-base text-black transition duration-500 ease-in-out transform rounded-lg bg-gray-100 focus:border-blueGray-500 focus:bg-white focus:outline-none focus:shadow-outline focus:ring-2 ring-offset-current ring-offset-2"
+                            {...register('type')}
+                        >
+                            <option value={1}> Cliente Vendedor </option>
+                            <option value={2}> Cliente Visitante </option>
+                        </select>
+                    </label>
+                    {errors?.type?.type && (
+                        <div className="text-red-600">
+                            {errors.type.message}
+                        </div>
+                    )}
+                </div>
+
                 <div className="relative pt-4">
                     <label className="text-base leading-7 text-blueGray-500">
                         Nome
@@ -106,6 +133,25 @@ const CustomerCreatePage: React.FunctionComponent<ICustomerCreatePageProps> = (p
                     {errors?.name?.type && (
                         <div className="text-red-600">
                             {errors.name.message}
+                        </div>
+                    )}
+                </div>
+
+                <div className="relative py-4">
+                    <label className="text-base leading-7 text-blueGray-500">
+                        CPF
+                        <InputMask
+                            mask="999.999.999-99"
+                            className={classValues.inputText}
+                            placeholder="CPF do cliente Ex: 999.999.999-99"
+                            alwaysShowMask={false}
+                            maskPlaceholder={null}
+                            {...register('document')}
+                        />
+                    </label>
+                    {errors?.document?.type && (
+                        <div className="text-red-600">
+                            {errors.document.message}
                         </div>
                     )}
                 </div>

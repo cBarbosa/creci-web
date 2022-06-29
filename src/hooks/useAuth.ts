@@ -12,13 +12,17 @@ export const useAuth = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
+    const userStorage = localStorage.getItem('user');
+
+    if (token && userStorage) {
       api.defaults.headers.common['Authorization'] = `Bearer ${JSON.parse(token)}`;
       setAuthenticated(true);
+      setUser(JSON.parse(userStorage));
     }
+
     setLoading(false);
   }, []);
-  
+
   const handleLogin = async (username:string, password: string) => {
 
     if(!username || !password) {
@@ -32,25 +36,34 @@ export const useAuth = () => {
       });
 
       localStorage.setItem('token', JSON.stringify(accessToken));
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      localStorage.setItem('user', JSON.stringify(userData as IUser));
+      // atob('sdf');
+      // btoa('dsfsfd');
+      // api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
       setUser(userData as IUser);
       setAuthenticated(true);
       navigate('/app', { replace: true });
-
     } catch (error) {
       // throw Error(error);
       toast.error(`Credenciais de entrada inválidas, favor revisar`);
     }
   }
 
-  const handleLogout = () => {
-    setUser(null);
+  const handleLogout = async () => {
     setAuthenticated(false);
+    setUser(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     api.defaults.headers.common['Authorization'] = `${undefined}`;
     navigate('/login',  { replace: true });
   }
 
-  return { user, authenticated, loading, handleLogin, handleLogout };
+  return {
+    user,
+    authenticated,
+    loading,
+    handleLogin,
+    handleLogout
+  };
 }

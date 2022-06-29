@@ -1,41 +1,93 @@
-import { AddressBook, ArrowSquareOut, CalendarCheck, CalendarX, DeviceMobile, Envelope, Plus, PlusCircle, UserCircle, X, XCircle } from 'phosphor-react';
 import React from 'react';
+import {
+    ArrowSquareOut,
+    CalendarCheck,
+    CalendarX,
+    DeviceMobile,
+    Envelope,
+    HourglassSimpleMedium,
+    NotePencil,
+    Plus,
+    UserCircle,
+    XCircle
+} from 'phosphor-react';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-import { CustomerType } from '../../models/Customer';
-import api from '../../services/api';
+import { ModalCustom } from '../../components/Modals/ModalCustom';
+import { toast } from 'react-toastify';
+import { ScheduleModalAdd } from '../../components/Modals/SheduleModalAdd';
+import { ScheduleModalEdit } from '../../components/Modals/ScheduleModalEdit';
+import {
+    DeleteSchedule
+} from '../../services/schedule';
+import { GetAddressByUUID } from '../../services/address';
+import { AddressType } from '../../models/Address';
+import { ScheduleType } from '../../models/Schedule';
+import { LoadingSpin } from '../../components/LoadingSpin';
 
 export interface IAddressDetailPageProps {};
 
 const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (props) => {
 
     const { uuid } = useParams();
-    const [customer, setCustomer] = React.useState<CustomerType | null>(null);
+    const [address, setAddress] = React.useState<AddressType | null>(null);
+    const [schedule, setSchedule] = React.useState<ScheduleType | null>(null);
+    
     const [showModal, setShowModal] = React.useState(false);
-    const [showModalAddress, setShowModalAddress] = React.useState(false);
-    const [uuidDeletion, setUuidDeletion] = React.useState('');
+    const [showModalSchedule, setShowModalSchedule] = React.useState(false);
+    const [showModalNewSchedule, setShowModalNewSchedule] = React.useState(false);
 
-    const _handleShowDeleteAddress = async (uuid: string) => {
+    const [loading, setLoading] = React.useState(false);
+
+    const _handleShowDeleteSchedule = async (schedule: ScheduleType) => {
         setShowModal(true);
-        setUuidDeletion(uuid);
+        setSchedule(schedule);
     };
 
-    const _handleHideDeleteAddress = async () => {
-        setShowModal(false);
-        setUuidDeletion('');
+    const _handleShowEditSchedule = async (schedule: ScheduleType) => {
+        console.debug('_handleShowEditSchedule', schedule);
+        setShowModalSchedule(true);
+        setSchedule(schedule);
     };
 
-    React.useEffect(() => {
-        api.get(`/api/Customer/${uuid}`).then(result => {
-             if(result?.data?.success) {
-                 setCustomer(result?.data?.data);
-                //  setLastPage(result?.data?.)
-             }
+    const _handleDeleteSchedule = async () => {
+        setLoading(true);
+
+        await DeleteSchedule(schedule?.uuid!).then(result => {
+            if(!result.data.success) {
+                toast.error(result.data.message);
+                return;
+            }
+            toast.success(result.data.message);
+            getAddressFromUUID();
+            setShowModal(false);
         })
         .catch((error) => {
             console.log(error);
+            toast.error(error);
         });
+
+        setLoading(false);
+    };
+
+    React.useEffect(() => {
+        getAddressFromUUID();
      }, []);
+
+    const getAddressFromUUID = async () => {
+        GetAddressByUUID(uuid!).then(result => {
+            if(result?.data?.success) {
+                setAddress(result?.data?.data);
+            }
+       })
+       .catch((error) => {
+           console.log(error);
+       });
+    };
+
+    if(loading) {
+        return <LoadingSpin />;
+    }
 
     return (
         <>
@@ -47,7 +99,7 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                     </li>
                     <li><span className="mx-2">/</span></li>
                     <li>
-                        <Link to='/app/customer' className="text-blue-900 font-bold">Clientes</Link>
+                        <Link to='/app/address' className="text-blue-900 font-bold">Imóveis</Link>
                     </li>
                     <li><span className="mx-2">/</span></li>
                     <li>Detalhe</li>
@@ -58,19 +110,28 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                 
                 <section>
                     <div className="flex items-center mb-6 space-x-4">
-                        <UserCircle size={48} color="#737882" weight="regular" />
+                        <HourglassSimpleMedium size={48} color="#737882" weight="regular" />
                         <div className="space-y-1 font-medium dark:text-gray-900">
-                            <span className='uppercase'>{customer?.name}</span>
+                            <span className='uppercase'>{address?.street}, {address?.number}</span><br />
+                            {address?.neighborhood}<br />
+                            {address?.city} / {address?.state}<br />
+                            {address?.zipcode}
+                            <div className="flex items-center text-sm text-gray-500 gap-1">
+                                <UserCircle size={20} color="#737882" weight="duotone" />
+                                <span>
+                                    {address?.customer?.name}
+                                </span>
+                            </div>
                             <div className="flex items-center text-sm text-gray-500 gap-1">
                                 <Envelope size={20} color="#737882" weight="duotone" />
                                 <span className='lowercase'>
-                                    {customer?.email}
+                                    {address?.customer?.email}
                                 </span>
                             </div>
                             <div className="flex items-center text-sm text-gray-500 gap-1">
                                 <DeviceMobile size={20} color="#737882" weight="duotone" />
                                 <span>
-                                    {customer?.phone}
+                                    {address?.customer?.formatedPhone}
                                 </span>
                             </div>
                         </div>
@@ -84,7 +145,7 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                             <CalendarX size={18} color="red" weight="duotone" />
                             <span>0 Visitas desmarcadas</span>
                         </li>
-                        <li className="flex items-center"><svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path></svg>Family</li>
+                        {/* <li className="flex items-center"><svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path></svg>Family</li> */}
                     </ul>
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">última visita: <time dateTime="2022-01-20 19:00">20 de Janeiro, 2022</time></p>
                 </section>
@@ -92,13 +153,14 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                 <section className="col-span-2 mt-6 md:mt-0">
                     <div className="flex justify-between content-center mb-5">
                         <div className="pr-4">
-                            {(customer?.addresses !== undefined && customer?.addresses.length > 0) && (<h4 className="text-xl font-bold text-gray-600">Lista dos imóveis</h4>)}
-                            {(customer?.addresses === undefined || customer?.addresses.length === 0) && (<h4 className="text-xl font-bold text-gray-600">Sem imóveis cadastrados</h4>)}
+                            {(address?.schedules !== undefined && address?.schedules?.length > 0) && (<h4 className="text-xl font-bold text-gray-600">Lista das visitas</h4>)}
+                            {(address?.schedules === undefined || address?.schedules?.length === 0) && (<h4 className="text-xl font-bold text-gray-600">Sem visitas cadastradas</h4>)}
                         </div>
 
                         <button
                             className="flex justify-between content-center gap-2 bg-blue-500 text-white active:bg-blue-600 font-bold text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                             type="button"
+                            onClick={() => setShowModalNewSchedule(true)}
                         >
                             <Plus size={20} color={`white`}/>
                             Adicionar
@@ -109,20 +171,20 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                     {/* <p className="mb-2 font-light text-gray-500 ">The flat was spotless, very comfortable, and the host was amazing. I highly recommend this accommodation for anyone visiting Brasov city centre. It's quite a while since we are no longer using hotel facilities but self contained places. And the main reason is poor cleanliness and staff not being trained properly. This place exceeded our expectation and will return for sure.</p>
                     <p className="mb-5 font-light text-gray-500 ">It is obviously not the same build quality as those very expensive watches. But that is like comparing a Citroën to a Ferrari. This watch was well under £100! An absolute bargain.</p> */}
 
-                    {(customer?.addresses !== undefined && customer?.addresses.length > 0)
+                    {(address?.schedules !== undefined && address?.schedules?.length > 0)
                     && (
                         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                             <table className="w-full text-sm text-left text-gray-500">
                                 <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                     <tr>
                                         <th scope="col" className="px-6 py-3">
-                                            Logradouro
+                                            Data Visita
                                         </th>
                                         <th scope="col" className="px-6 py-3">
-                                            Cidade
+                                            Situação
                                         </th>
                                         <th scope="col" className="px-6 py-3">
-                                            Bairro
+                                            Visitante
                                         </th>
                                         <th scope="col" className="px-6 py-3">
                                             <span className="sr-only">Edit</span>
@@ -130,26 +192,31 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {customer?.addresses?.map((address, index) => {
+                                {address?.schedules?.map((schedule, index) => {
                                     return (
                                             <tr key={index} className="bg-white border-b hover:bg-gray-50">
                                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                                    {address.street}, {address.number}
-                                                    <br/>{address.zipcode}
+                                                    {schedule.formatedDate} às {schedule.formatedTime}
                                                 </th>
                                                 <td className="px-6 py-4">
-                                                    {address.city} / {address.state}
+                                                    {schedule.status == 1 && ("Aguardando confirmação do cliente")}
+                                                    {schedule.status == 2 && ("Cliente aprovou")}
+                                                    {schedule.status == 3 && ("Cliente negou")}
+                                                    {schedule.status == 4 && ("Cliente propôs nova data")}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                {address.neighborhood}
+                                                    {schedule.visitor?.name ? schedule.visitor?.name : "Anônimo"}
                                                 </td>
                                                 <td className="px-6 py-4 flex justify-end gap-1">
                                                     <div>
-                                                        <XCircle size={32} color="red" weight="duotone" onClick={() => _handleShowDeleteAddress(address.uuid)} className='cursor-pointer' />
+                                                        <XCircle size={20} color="red" weight="duotone" className='cursor-pointer' onClick={() => _handleShowDeleteSchedule(schedule)}  />
                                                     </div>
                                                     <div>
-                                                        <Link to={'/app/customer'} className='hover:color'>
-                                                            <ArrowSquareOut size={32} color="#737882" weight="duotone" />
+                                                        <NotePencil size={20} color={`green`} className='cursor-pointer' onClick={() => _handleShowEditSchedule(schedule)} />
+                                                    </div>
+                                                    <div>
+                                                        <Link to={`/app/address/${address.uuid}`} className='hover:color'>
+                                                            <ArrowSquareOut size={20} color="#737882" weight="duotone" />
                                                         </Link>
                                                     </div>
                                                 </td>
@@ -188,123 +255,55 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                 </section>
             </div>
 
-            {/* <div className='absolute top-[100px] right-4'>
-                <button
-                    className="bg-cyan-500 active:bg-cyan-600 uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-                    type="button"
-                    style={{ transition: "all .15s ease" }}
+            {showModal && (
+                <ModalCustom
+                    setShowModal={setShowModal}
+                    confirmFunction={_handleDeleteSchedule}
+                    setLoading={setLoading}
                 >
-                    <Plus size={32} color="white" weight="duotone" />
-                </button>
-            </div> */}
-
-            {showModal ? (
-                <>
-                <div
-                    className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
-                >
-                    <div className="relative w-auto my-6 mx-auto max-w-3xl">
-                        {/*content*/}
-                        <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                            {/*header*/}
-                            <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
-                            <h3 className="text-3xl font-semibold">
-                                Apagar Endereço
-                            </h3>
-                            <button
-                                className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                                onClick={() => _handleHideDeleteAddress()}
-                            >
-                                <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                                    <X size={32} color="black" weight="duotone" />
-                                </span>
-                            </button>
-                            </div>
-                            {/*body*/}
-                            <div className="relative p-6 flex-auto">
-                                <p className="my-4 text-slate-500 text-lg leading-relaxed">
-                                    Confirma a esclusão das informações?
-                                </p>
-                            </div>
-                            {/*footer*/}
-                            <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
-                                <button
-                                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                                    type="button"
-                                    onClick={() => _handleHideDeleteAddress()}
-                                >
-                                    Fechar
-                                </button>
-                                <button
-                                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                                    type="button"
-                                    onClick={() => _handleHideDeleteAddress()}
-                                >
-                                    Confirma
-                                </button>
-                            </div>
+                    <div className="relative p-6 flex-auto">
+                        <p className="my-4 text-slate-500 text-lg leading-relaxed">
+                            Confirma a exclusão da visita selecionada?
+                        </p>
+                        <div>
+                            <span className='font-semibold'>{schedule?.visitor?.name ? schedule?.visitor?.name : "Anônimo"}</span>
+                            <br />
+                            <section className='font-light'>
+                                {schedule?.formatedDate} às {schedule?.formatedTime}
+                            </section>
                         </div>
                     </div>
-                </div>
-                <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
-                </>
-            ) : null}
+                </ModalCustom>
+            )}
 
-            {showModalAddress ? (
-                <>
-                <div
-                    className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
-                >
-                    <div className="relative w-auto my-6 mx-auto max-w-3xl">
-                        {/*content*/}
-                        <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                            {/*header*/}
-                            <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
-                            <h3 className="text-3xl font-semibold">
-                                Modal Title
-                            </h3>
-                            <button
-                                className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                                onClick={() => setShowModal(false)}
-                            >
-                                <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                                    <X size={32} color="black" weight="duotone" />
-                                </span>
-                            </button>
-                            </div>
-                            {/*body*/}
-                            <div className="relative p-6 flex-auto">
-                                <p className="my-4 text-slate-500 text-lg leading-relaxed">
-                                    I always felt like I could do anything. That’s the main
-                                    thing people are controlled by! Thoughts- their perception
-                                    of themselves! They're slowed down by their perception of
-                                    themselves. If you're taught you can’t do anything, you
-                                    won’t do anything. I was taught I could do everything.
-                                </p>
-                            </div>
-                            {/*footer*/}
-                            <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
-                                <button
-                                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                >
-                                    Fechar
-                                </button>
-                                <button
-                                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                >
-                                    Confirma
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
-                </>
-            ) : null}
+            {showModalSchedule && schedule &&(
+                <ScheduleModalEdit
+                    schedule={
+                        {
+                            uuid: schedule.uuid,
+                            addressUuid: address?.uuid,
+                            customerUuid: schedule.visitor?.uuid,
+                            formatedTime: schedule.formatedTime,
+                            formatedDate: schedule.formatedDate,
+                            time: schedule.time,
+                            date: schedule.date,
+                            status: schedule.status
+                        } as ScheduleType}
+                    setShowModal={setShowModalSchedule}
+                    reload={getAddressFromUUID}
+                    setLoading={setLoading}
+                />
+            )}
+
+            {showModalNewSchedule && (
+                <ScheduleModalAdd
+                    schedule={{ addressUuid: address?.uuid } as ScheduleType}
+                    setShowModal={setShowModalNewSchedule}
+                    setLoading={setLoading}
+                    reload={getAddressFromUUID}
+                />
+            )}
+
         </>
         );
 };

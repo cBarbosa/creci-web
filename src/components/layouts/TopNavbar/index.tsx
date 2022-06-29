@@ -13,10 +13,7 @@ export const TopNavbar = () => {
   const [showModalLogoff, setShowModalLogoff] = React.useState(false);
 
   const _handleLogoff = async () => {
-    console.debug('_handleLogoff', 'passo 1');
     await handleLogout();
-    
-    navigate(`/login`, { replace: true });
   };
 
   return (
@@ -25,7 +22,7 @@ export const TopNavbar = () => {
           <div className="container mx-auto p-4 flex flex-wrap items-center md:flex-no-wrap">
 
             <div className="mr-4 md:mr-8">
-              <a href="/app" rel="home">
+              <a href="/app/dashboard" rel="home">
                 <img
                   src={LogoIcon}
                   className={`cursor-pointer duration-500 h-10`}
@@ -48,16 +45,16 @@ export const TopNavbar = () => {
                   <Link className="block px-4 py-1 md:p-2 lg:px-4 text-blue-600" to={'customer'} title="Clientes" >Clientes</Link>
                 </li>
                 <li>
-                  <a className="block px-4 py-1 md:p-2 lg:px-4 text-blue-600" href="#" title="Imóveis">Imóveis</a>
+                  <Link className="block px-4 py-1 md:p-2 lg:px-4 text-blue-600" to={'address'} title="Imóveis">Imóveis</Link>
                 </li>
               </ul>
 
               <ul className="flex flex-col mt-4 -mx-4 pt-4 border-t md:flex-row md:items-center md:mx-0 md:ml-auto md:mt-0 md:pt-0 md:border-0">
-                <li>
+                {/* <li>
                   <a className="block px-4 py-1 md:p-2 lg:px-4" href="#" title="Link">Link {authenticated}</a>
-                </li>
+                </li> */}
                 <li>
-                  <span className="block px-4 py-1 md:p-2 lg:px-4 text-blue-600">Corretor: {user?.nome} {user?.creci}</span>
+                  <span className="block px-4 py-1 md:p-2 lg:px-4 text-blue-600">Corretor: {user?.nome} ({user?.creci})</span>
                 </li>
                 <li>
                     <span
