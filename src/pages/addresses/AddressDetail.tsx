@@ -6,12 +6,16 @@ import {
     DeviceMobile,
     Envelope,
     HourglassSimpleMedium,
+    HouseSimple,
     NotePencil,
     Plus,
+    RocketLaunch,
+    TelegramLogo,
+    Trash,
     UserCircle,
     XCircle
 } from 'phosphor-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { ModalCustom } from '../../components/Modals/ModalCustom';
 import { toast } from 'react-toastify';
@@ -24,19 +28,20 @@ import { GetAddressByUUID } from '../../services/address';
 import { AddressType } from '../../models/Address';
 import { ScheduleType } from '../../models/Schedule';
 import { LoadingSpin } from '../../components/LoadingSpin';
+import { AlertInfo } from '../../components/Alert/AlertInfo';
 
 export interface IAddressDetailPageProps {};
 
 const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (props) => {
 
     const { uuid } = useParams();
+    const navigate = useNavigate();
     const [address, setAddress] = React.useState<AddressType | null>(null);
     const [schedule, setSchedule] = React.useState<ScheduleType | null>(null);
-    
     const [showModal, setShowModal] = React.useState(false);
     const [showModalSchedule, setShowModalSchedule] = React.useState(false);
     const [showModalNewSchedule, setShowModalNewSchedule] = React.useState(false);
-
+    const [showModalReSendSchedule, setShowModalReSendSchedule] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
 
     const _handleShowDeleteSchedule = async (schedule: ScheduleType) => {
@@ -47,6 +52,11 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
     const _handleShowEditSchedule = async (schedule: ScheduleType) => {
         console.debug('_handleShowEditSchedule', schedule);
         setShowModalSchedule(true);
+        setSchedule(schedule);
+    };
+
+    const _handleShowReSendSchedule = async (schedule: ScheduleType) => {
+        setShowModalReSendSchedule(true);
         setSchedule(schedule);
     };
 
@@ -70,19 +80,28 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
         setLoading(false);
     };
 
+    const _handleReSendSchedule = async () => {
+
+    };
+
     React.useEffect(() => {
         getAddressFromUUID();
      }, []);
 
     const getAddressFromUUID = async () => {
-        GetAddressByUUID(uuid!).then(result => {
+        setLoading(true);
+        await GetAddressByUUID(uuid!).then(result => {
+            console.debug('result', result);
             if(result?.data?.success) {
                 setAddress(result?.data?.data);
             }
-       })
-       .catch((error) => {
+        })
+        .catch((error) => {
            console.log(error);
-       });
+           navigate(`/404`);
+        }).finally(()=> {
+            setLoading(false);
+        });
     };
 
     if(loading) {
@@ -109,19 +128,21 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
             <div className="px-3 md:gap-8 md:grid md:grid-cols-3">
                 
                 <section>
-                    <div className="flex items-center mb-6 space-x-4">
-                        <HourglassSimpleMedium size={48} color="#737882" weight="regular" />
-                        <div className="space-y-1 font-medium dark:text-gray-900">
-                            <span className='uppercase'>{address?.street}, {address?.number}</span><br />
+                    <div className="flex items-center mb-4 space-x-4 overflow-hidden">
+                        <div className="space-y-1">
+                            <span className='font-medium uppercase'>{address?.title}</span><br />
+                            {address?.street}, {address?.number}<br />
                             {address?.neighborhood}<br />
                             {address?.city} / {address?.state}<br />
                             {address?.zipcode}
-                            <div className="flex items-center text-sm text-gray-500 gap-1">
-                                <UserCircle size={20} color="#737882" weight="duotone" />
-                                <span>
-                                    {address?.customer?.name}
-                                </span>
-                            </div>
+                            <Link to={`/app/customer/${address?.customer?.uuid}`} className='underline cursor-pointer'>
+                                <div className="flex items-center text-sm text-gray-500 gap-1">
+                                        <UserCircle size={20} color="#737882" weight="duotone" />
+                                        <span>
+                                            {address?.customer?.name}
+                                        </span>
+                                </div>
+                            </Link>
                             <div className="flex items-center text-sm text-gray-500 gap-1">
                                 <Envelope size={20} color="#737882" weight="duotone" />
                                 <span className='lowercase'>
@@ -203,21 +224,20 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                                                     {schedule.status == 2 && ("Cliente aprovou")}
                                                     {schedule.status == 3 && ("Cliente negou")}
                                                     {schedule.status == 4 && ("Cliente propôs nova data")}
+                                                    {schedule.status == 5 && ("Visita realizada")}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {schedule.visitor?.name ? schedule.visitor?.name : "Anônimo"}
                                                 </td>
-                                                <td className="px-6 py-4 flex justify-end gap-1">
+                                                <td className="px-6 py-4 flex justify-end gap-2">
                                                     <div>
-                                                        <XCircle size={20} color="red" weight="duotone" className='cursor-pointer' onClick={() => _handleShowDeleteSchedule(schedule)}  />
+                                                        <Trash size={20} color="red" weight="duotone" className='cursor-pointer' onClick={() => _handleShowDeleteSchedule(schedule)}  />
                                                     </div>
                                                     <div>
                                                         <NotePencil size={20} color={`green`} className='cursor-pointer' onClick={() => _handleShowEditSchedule(schedule)} />
                                                     </div>
                                                     <div>
-                                                        <Link to={`/app/address/${address.uuid}`} className='hover:color'>
-                                                            <ArrowSquareOut size={20} color="#737882" weight="duotone" />
-                                                        </Link>
+                                                        <RocketLaunch size={20} color="#737882" weight="duotone" className='cursor-pointer' onClick={() => _handleShowReSendSchedule(schedule)} />
                                                     </div>
                                                 </td>
                                             </tr>
@@ -261,18 +281,48 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                     confirmFunction={_handleDeleteSchedule}
                     setLoading={setLoading}
                 >
-                    <div className="relative p-6 flex-auto">
-                        <p className="my-4 text-slate-500 text-lg leading-relaxed">
-                            Confirma a exclusão da visita selecionada?
-                        </p>
-                        <div>
-                            <span className='font-semibold'>{schedule?.visitor?.name ? schedule?.visitor?.name : "Anônimo"}</span>
-                            <br />
-                            <section className='font-light'>
-                                {schedule?.formatedDate} às {schedule?.formatedTime}
-                            </section>
+                    <>
+                        {schedule?.status === 1 && <AlertInfo message={`Aguardando confirmação do cliente`} />}
+                        <div className="relative px-10 pb-5 flex-auto">
+                            <p className="my-4 text-slate-500 text-lg leading-relaxed">
+                                Confirma a exclusão da visita selecionada?
+                            </p>
+                            <div>
+                                <span className='font-semibold'>{schedule?.visitor?.name ? schedule?.visitor?.name : "Anônimo"}</span>
+                                <br />
+                                <section className='font-light'>
+                                    {schedule?.formatedDate} às {schedule?.formatedTime}
+                                </section>
+                            </div>
                         </div>
-                    </div>
+                    </>
+                </ModalCustom>
+            )}
+
+            {showModalReSendSchedule && (
+                <ModalCustom
+                    setShowModal={setShowModalReSendSchedule}
+                    confirmFunction={_handleReSendSchedule}
+                    setLoading={setLoading}
+                    title={`Reenvio do extrato de visita`}
+                >
+                    <>
+                        {schedule?.status === 1 && <AlertInfo message={`Aguardando confirmação do cliente`} />}
+                        <div className="relative px-10 pb-5 flex-auto">
+                            <p className="my-4 text-slate-500 text-lg leading-relaxed">
+                                Confirma o reenvio da notificação?
+                            </p>
+                            <div>
+                                <span className='font-semibold'>{schedule?.visitor?.name ? schedule?.visitor?.name : "Anônimo"}</span>
+                                <br />
+                                <span className='font-normal'>{schedule?.visitor?.email ? schedule?.visitor?.email : "Email não informado"}</span>
+                                <br />
+                                <section className='font-light'>
+                                    {schedule?.formatedDate} às {schedule?.formatedTime}
+                                </section>
+                            </div>
+                        </div>
+                    </>
                 </ModalCustom>
             )}
 

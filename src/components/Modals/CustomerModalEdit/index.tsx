@@ -42,8 +42,8 @@ export const CustomerModalEdit = (
             uuid: customer.uuid,
             name: customer.name,
             email: customer.email,
-            phone: customer.phone,
-            document: customer.document
+            phone: customer.formatedPhone,
+            document: customer.formatedDocument
         } as CustomerEdit,
         resolver: yupResolver(validationCustomerSchema)
     });

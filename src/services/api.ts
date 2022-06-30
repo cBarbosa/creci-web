@@ -33,10 +33,12 @@ axiosService.interceptors.request.use(
 axiosService.interceptors.response.use((response) => {
 // console.debug('InterceptorResponse', response);
     return response;
-}, async function (error) {
+}, async (error) => {
     
     const originalRequest = error.config;
     // console.debug('InterceptorResponse', `error response interceptor`, originalRequest);
+
+    console.debug('responseError', error);
 
     if(error.message === 'Network Error' && !error.response) {
         toast.error(`Netowrk error - make sure API is running`);
@@ -45,7 +47,7 @@ axiosService.interceptors.response.use((response) => {
     
     const {status, data, config} = error.response;
 
-    if(status === 401 && data.message === '') {
+    if(status === 401 && (data?.message === '' || data?.message === undefined)) {
         toast.error(`Você não está mais logado no sistema.`);
         // history.replace('/login');
         return Promise.reject(error);
@@ -67,7 +69,7 @@ axiosService.interceptors.response.use((response) => {
         return Promise.reject(error);
     }
 
-    // toast.error(data.message);
+    toast.error(data.message);
     return Promise.reject(error);
 });
 

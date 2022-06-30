@@ -13,6 +13,7 @@ import {
 } from "../../../services/customer";
 import { ScheduleFormData, ScheduleType } from "../../../models/Schedule";
 import { CustomerType } from "../../../models/Customer";
+import { AlertInfo } from "../../Alert/AlertInfo";
 
 interface ScheduleModalEditProps {
     schedule: ScheduleType;
@@ -141,11 +142,9 @@ export const ScheduleModalEdit = (
                     <form
                             onSubmit={handleSubmit(onScheduleSubmit, onScheduleError)}
                     >
-                    <div className="pt-4 px-4 flex items-center align-middle">
-                        <div className="w-full p-4 mb-4 text-sm text-yellow-700 bg-yellow-100 rounded-lg" role="alert">
-                            <span className="font-medium">Atenção!</span> {schedule.status === 1 && "Aguardando confirmação do cliente"}
-                        </div>
-                    </div>
+
+                    {schedule.status === 1 && <AlertInfo message={`Aguardando confirmação do cliente`} />}
+
                     <div className="flex flex-col w-full px-4 transition duration-500 ease-in-out transform bg-white">
 
                             <div className="relative py-4">

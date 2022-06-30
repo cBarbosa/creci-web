@@ -61,6 +61,7 @@ export default function Routes() {
                 <App />
               </ProtectedRoute>
             }>
+              <Route index element={<DashboardPage />} />
               <Route path="dashboard" element={<DashboardPage/>}/>
               <Route path='customer' element={<CustomersListPage/>}/>
               <Route path='customer/:uuid' element={<CustomerDetailPage/>} />

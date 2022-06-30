@@ -6,10 +6,13 @@ import {
     ArrowSquareOut,
     CalendarCheck,
     CalendarX,
+    Cardholder,
     DeviceMobile,
     Envelope,
+    IdentificationCard,
     NotePencil,
     Plus,
+    Trash,
     UserCircle,
     X,
     XCircle
@@ -39,19 +42,19 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
     const [showModalAddAddress, setShowModalAddAddress] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
 
-    React.useEffect(() => {
-        _getCustomerFromDB();
-     }, []);
-
     const _getCustomerFromDB = async () => {
+        setLoading(true);
         await GetCustomerByUUID(uuid!).then(result => {
             if(result?.data?.success) {
                 setCustomer(result?.data?.data);
             }
-       })
-       .catch((error) => {
-           console.log(error);
-       });
+        })
+        .catch((error) => {
+            navigate(`/404`);
+            console.log(error);
+        }).finally(()=> {
+            setLoading(false);
+        });;
     };
 
     const _handleShowDeleteAddress = async (address: AddressType) => {
@@ -108,6 +111,10 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
         setShowModalCustomer(true);
     };
 
+    React.useEffect(() => {
+        _getCustomerFromDB();
+     }, []);
+
     if(loading) {
         return <LoadingSpin />;
     }
@@ -132,24 +139,34 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
             <div className="px-3 md:gap-8 md:grid md:grid-cols-3">
                 
                 <section>
-                    <div className="flex items-center mb-6 space-x-4">
+                    <div className="flex items-center mb-6 space-x-4 overflow-hidden">
                         <UserCircle size={48} color="#737882" weight="regular" />
                         <div className="space-y-1 font-medium dark:text-gray-900">
                             <span className='uppercase'>{customer?.name}</span><br />
-                            <span className='text-sm font-thin'>{customer?.formatedDocument}</span>
                             <div className="flex items-center text-sm text-gray-500 gap-1">
                                 <Envelope size={20} color="#737882" weight="duotone" />
                                 <span className='lowercase'>
                                     {customer?.email}
                                 </span>
                             </div>
-                            <div className="flex items-center text-sm text-gray-500 gap-1">
-                                <DeviceMobile size={20} color="#737882" weight="duotone" />
-                                <span>
-                                    {customer?.formatedPhone}
-                                    {/* https://wa.me/5599999999999 */}
-                                </span>
-                            </div>
+                            {customer?.formatedDocument && (
+                                <div className="flex items-center text-sm text-gray-500 gap-1">
+                                    <IdentificationCard size={20} color="#737882" weight="duotone" />
+                                    <span className='lowercase'>
+                                        {customer?.formatedDocument}
+                                    </span>
+                                </div>
+                            )}
+                            {customer?.formatedPhone && (
+                                <div className="flex items-center text-sm text-gray-500 gap-1">
+                                    <DeviceMobile size={20} color="#737882" weight="duotone" />
+                                    <span>
+                                        {customer?.formatedPhone}
+                                        {/* https://wa.me/5599999999999 */}
+                                    </span>
+                                </div>
+                            )}
+                            
                         </div>
                     </div>
                     <ul className="space-y-4 text-sm text-gray-500">
@@ -179,7 +196,7 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
                             type="button"
                             onClick={() => setShowModalDelCustomer(true)}
                         >
-                            <X size={20} color={`white`}/>
+                            <Trash size={20} color={`white`}/>
                             Excluir
                         </button>
 
@@ -245,14 +262,14 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
                                                 </td>
                                                 <td scope='row' className="p-3 flex justify-between gap-2 w-14">
                                                     <div>
-                                                        <XCircle size={20} color="red" weight="duotone" className='cursor-pointer' onClick={() => _handleShowDeleteAddress(address)} />
+                                                        <Trash size={20} color="red" weight="duotone" className='cursor-pointer' onClick={() => _handleShowDeleteAddress(address)} />
                                                     </div>
                                                     <div>
                                                         <NotePencil size={20} color={`green`} className='cursor-pointer' onClick={() => _handleShowEditAddress(address)} />
                                                     </div>
                                                     <div>
                                                         <Link to={`/app/address/${address.uuid}`} className='hover:color'>
-                                                            <ArrowSquareOut size={20} color="#737882" weight="duotone" />
+                                                            <Cardholder size={20} color="#737882" weight="duotone" />
                                                         </Link>
                                                     </div>
                                                 </td>

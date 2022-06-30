@@ -8,8 +8,7 @@ import {
     HouseLine,
     MapPin,
     Plus,
-    UserCircle,
-    X
+    UserCircle
 } from 'phosphor-react';
 import { Link } from 'react-router-dom';
 import { LoadingSpin } from '../../components/LoadingSpin';
@@ -94,6 +93,9 @@ const AddressListPage: React.FunctionComponent<IAddressListPageProps> = (props) 
                                 <div className="flex font-light text-sm text-gray-500 gap-1">
                                     <UserCircle size={18} color="#737882" weight="duotone" />
                                     <span>{address.customer?.name}</span>
+                                </div>
+                                <div className="flex font-light text-sm text-gray-500 gap-1">
+                                    <span>{address.schedules?.length} agendamentos</span>
                                 </div>
                             </div>
                             <div className="right m-auto mr-0">
