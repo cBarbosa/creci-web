@@ -6,7 +6,7 @@ import { ModalHeader } from "./ModalHeader";
     title?: string;
     children: JSX.Element;
     setShowModal: (show: boolean) => void;
-    confirmFunction: () => void;
+    confirmFunction?: () => void;
     setLoading?: (loading: boolean) => void;
  };
 
@@ -15,7 +15,6 @@ export const ModalCustom = (
         title,
         children,
         setShowModal,
-        setLoading,
         confirmFunction
     }:ModalCustomProps) => {
 
@@ -34,7 +33,7 @@ export const ModalCustom = (
                         {children}
 
                         {/*footer*/}
-                        <ModalBottom setShowModal={setShowModal} setLoading={setLoading} confirmFunction={confirmFunction} />
+                        <ModalBottom setShowModal={setShowModal} confirmFunction={confirmFunction} />
                     </div>
                 </div>
             </div>

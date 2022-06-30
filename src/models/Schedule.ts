@@ -1,5 +1,6 @@
 import { AddressType } from "./Address";
 import { CustomerType } from "./Customer";
+import { AgentType } from "./User";
 
 export interface ScheduleFormData {
     uuid?: string;
@@ -17,12 +18,14 @@ export type ScheduleType = {
     creci?: string;
     accepted?: string;
     rejected?: string;
+    created?: string;
     customerSuggest?: string;
     status?: number;
     formatedDate?: string;
     formatedTime?: string;
-    address?: AddressType;
-    visitor?: CustomerType;
     addressUuid?: string;
     customerUuid?: string;
+    address?: AddressType;
+    visitor?: CustomerType;
+    agent?: AgentType;
 };

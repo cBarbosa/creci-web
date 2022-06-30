@@ -1,19 +1,15 @@
 import React from 'react';
 import {
-    ArrowSquareOut,
     CalendarCheck,
     CalendarX,
     DeviceMobile,
     Envelope,
-    HourglassSimpleMedium,
-    HouseSimple,
+    Eye,
     NotePencil,
     Plus,
     RocketLaunch,
-    TelegramLogo,
     Trash,
-    UserCircle,
-    XCircle
+    UserCircle
 } from 'phosphor-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
@@ -22,13 +18,16 @@ import { toast } from 'react-toastify';
 import { ScheduleModalAdd } from '../../components/Modals/SheduleModalAdd';
 import { ScheduleModalEdit } from '../../components/Modals/ScheduleModalEdit';
 import {
-    DeleteSchedule
+    DATETIME_FORMAT_OPTIONS,
+    DeleteSchedule, STATUS_TUPLE
 } from '../../services/schedule';
 import { GetAddressByUUID } from '../../services/address';
 import { AddressType } from '../../models/Address';
 import { ScheduleType } from '../../models/Schedule';
 import { LoadingSpin } from '../../components/LoadingSpin';
 import { AlertInfo } from '../../components/Alert/AlertInfo';
+import { fetchAppointment } from '../../services/fetchApi';
+import { parseISO, isAfter } from 'date-fns';
 
 export interface IAddressDetailPageProps {};
 
@@ -42,6 +41,7 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
     const [showModalSchedule, setShowModalSchedule] = React.useState(false);
     const [showModalNewSchedule, setShowModalNewSchedule] = React.useState(false);
     const [showModalReSendSchedule, setShowModalReSendSchedule] = React.useState(false);
+    const [showModalAproved, setShowModalAproved] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
 
     const _handleShowDeleteSchedule = async (schedule: ScheduleType) => {
@@ -50,7 +50,6 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
     };
 
     const _handleShowEditSchedule = async (schedule: ScheduleType) => {
-        console.debug('_handleShowEditSchedule', schedule);
         setShowModalSchedule(true);
         setSchedule(schedule);
     };
@@ -81,7 +80,23 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
     };
 
     const _handleReSendSchedule = async () => {
+        
+    };
 
+    const _handleShowViewSchedule = async (schedule: ScheduleType) => {
+        setShowModalAproved(true);
+        _fetchSchedule(schedule.uuid!);
+    };
+
+    const _fetchSchedule = async (uuid: string) => {
+        setLoading(true);
+        await fetchAppointment(uuid).then(result => {
+            if(result.success) {
+                setSchedule(result.data);
+            }
+        }).catch((error) => {
+            console.log(error);
+        }).finally(()=>setLoading(false));
     };
 
     React.useEffect(() => {
@@ -220,25 +235,37 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                                                     {schedule.formatedDate} às {schedule.formatedTime}
                                                 </th>
                                                 <td className="px-6 py-4">
-                                                    {schedule.status == 1 && ("Aguardando confirmação do cliente")}
-                                                    {schedule.status == 2 && ("Cliente aprovou")}
-                                                    {schedule.status == 3 && ("Cliente negou")}
-                                                    {schedule.status == 4 && ("Cliente propôs nova data")}
-                                                    {schedule.status == 5 && ("Visita realizada")}
+                                                    {STATUS_TUPLE.find(x => x[0] === schedule.status)?.[1]}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {schedule.visitor?.name ? schedule.visitor?.name : "Anônimo"}
                                                 </td>
                                                 <td className="px-6 py-4 flex justify-end gap-2">
-                                                    <div>
-                                                        <Trash size={20} color="red" weight="duotone" className='cursor-pointer' onClick={() => _handleShowDeleteSchedule(schedule)}  />
-                                                    </div>
-                                                    <div>
-                                                        <NotePencil size={20} color={`green`} className='cursor-pointer' onClick={() => _handleShowEditSchedule(schedule)} />
-                                                    </div>
-                                                    <div>
-                                                        <RocketLaunch size={20} color="#737882" weight="duotone" className='cursor-pointer' onClick={() => _handleShowReSendSchedule(schedule)} />
-                                                    </div>
+                                                    {!schedule.accepted && !schedule.rejected && (
+                                                        <>
+                                                            <div>
+                                                                <Trash size={20} color="red" weight="duotone" className='cursor-pointer' onClick={() => _handleShowDeleteSchedule(schedule)}  />
+                                                            </div>
+                                                            <div>
+                                                                <NotePencil size={20} color={`green`} className='cursor-pointer' onClick={() => _handleShowEditSchedule(schedule)} />
+                                                            </div>
+                                                            <div>
+                                                                <RocketLaunch size={20} color="#737882" weight="duotone" className='cursor-pointer' onClick={() => _handleShowReSendSchedule(schedule)} />
+                                                            </div>
+                                                        </>
+                                                    )}
+
+                                                    {schedule.accepted && (
+                                                        <div>
+                                                            <Eye size={20} color="green" weight="duotone" className='cursor-pointer' onClick={() => _handleShowViewSchedule(schedule)}  />
+                                                        </div>
+                                                    )}
+
+                                                    {schedule.rejected && (
+                                                        <div>
+                                                            <Eye size={20} color="green" weight="duotone" className='cursor-pointer' onClick={() => _handleShowViewSchedule(schedule)}  />
+                                                        </div>
+                                                    )}
                                                 </td>
                                             </tr>
                                     );
@@ -352,6 +379,124 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
                     setLoading={setLoading}
                     reload={getAddressFromUUID}
                 />
+            )}
+
+            {showModalAproved && (
+
+                <ModalCustom
+                    setShowModal={setShowModalAproved}
+                    setLoading={setLoading}
+                    title={`Extrato da visita`}
+                >
+                    <>
+
+                    <header className="flex flex-col items-center text-center bg-white md:block lg:block xl:block md:items-start lg:items-start xl:items-start md:text-left lg:text-left xl:text-left md:relative lg:relative xl:relative">
+                        
+                        <div className="flex flex-col w-screen font-semibold lg:ml-12 xl:ml-12">
+                            <span>Data: {schedule?.formatedDate} às {schedule?.formatedTime}</span>
+                            <address className='font-thin'>
+                                <span className='font-semibold'>{schedule?.address?.street}, {schedule?.address?.number}</span><br />
+                                {schedule?.address?.neighborhood}<br />
+                                {schedule?.address?.state} / {schedule?.address?.city}<br />
+                                {schedule?.address?.zipcode}
+                            </address>
+                        </div>
+                        {/* <div className="px-8 py-2 mt-16 text-3xl font-bold text-sky-700 border-4 border-sky-700 border-dotted md:absolute md:right-0 md:top-0 md:mr-12 lg:absolute lg:right-0 lg:top-0 xl:absolute xl:right-0 xl:top-0 print:absolute print:right-0 print:top-0 lg:mr-20 xl:mr-20 print:mr-2 print:mt-8">
+                            {STATUS_TUPLE.find(x => x[0] === schedule?.status)?.[1]}
+                        </div> */}
+                        <section className="flex flex-col m-12 text-center lg:m-12 md:flex-none md:text-left md:relative md:m-0 md:mt-16 lg:flex-none lg:text-left lg:relative xl:flex-none xl:text-left xl:relative">
+                            <span className="font-extrabold">
+                                CORRETOR
+                            </span>
+                            <div className="flex flex-col">
+                                <span className="font-medium uppercase">
+                                    {schedule?.agent?.name}
+                                </span>
+                                <span>
+                                    CRECI: #{("000000000" + schedule?.agent?.creci).slice(-9)}
+                                </span>
+                                <span>
+                                    CNAI: #{("000000000" + schedule?.agent?.cnai).slice(-9)}
+                                </span>
+                                <span className='hover:underline'>
+                                    <a href={`mailto:${schedule?.agent?.email}`}>{schedule?.agent?.email}</a>
+                                </span>
+                            </div>
+
+                            
+                            <div className="flex flex-col md:absolute md:right-0 md:text-right lg:absolute lg:right-0 lg:text-right">
+                                <span className="font-extrabold">
+                                    COMPRADOR
+                                </span>
+
+                                <span className="font-medium uppercase">
+                                    {schedule?.visitor?.name}
+                                </span>
+                                <span>
+                                    CPF: {schedule?.visitor?.formatedDocument}
+                                </span>
+                                <span className='hover:underline'>
+                                    <a href={`mailto:${schedule?.visitor?.email}`}>{schedule?.visitor?.email}</a>
+                                </span>
+                            </div>
+
+                        </section>
+                    </header>
+
+                    <hr className="border-gray-300 md:mt-8" />
+
+                        <div>
+
+                        <div className="m-10">
+                            <h2 className="text-lg font-semibold text-center">Histórico da solicitação</h2>
+                            <div className="flex flex-col items-center text-center">
+                                <p className="text-xs">
+                                    <span className='font-bold'>{new Date(schedule?.created!).toLocaleDateString('pt-BR', DATETIME_FORMAT_OPTIONS)}</span>
+                                    <span> ▫ </span>
+                                    <span>{schedule?.agent?.name}</span>
+                                    <span> ▫ </span>
+                                    <span className="italic">Solicitou a visita</span>
+                                </p>
+                                {schedule?.accepted && (
+                                    <p className="text-xs">
+                                        <span className='font-bold'>{new Date(schedule?.accepted!).toLocaleDateString('pt-BR', DATETIME_FORMAT_OPTIONS)}</span>
+                                        <span> ▫ </span>
+                                        <span className='uppercase'>{schedule?.address?.customer?.name}</span>
+                                        <span> ▫ </span>
+                                        <span className="italic">Aprovou a visita</span>
+                                    </p>
+                                )}
+                                {schedule?.rejected && (
+                                    <p className="text-xs">
+                                        <span className='font-bold'>{new Date(schedule?.rejected!).toLocaleDateString('pt-BR', DATETIME_FORMAT_OPTIONS)}</span>
+                                        <span> ▫ </span>
+                                        <span className='uppercase'>{schedule?.address?.customer?.name}</span>
+                                        <span> ▫ </span>
+                                        <span className="italic">Negou a visita</span>
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {schedule?.accepted && (
+                        <div className="flex flex-col items-center mb-24 leading-relaxed">
+                            <span className="w-96 text-4xl text-center text-black border-b-2 border-black border-dotted opacity-75 font-homemade-apple">
+                                {schedule?.address?.customer?.name}
+                            </span>
+                            <span className="text-center">Proprietário</span>
+                        </div>
+                    )}
+
+                    {schedule?.rejected && (
+                        <div className="flex flex-col items-center mb-24 leading-relaxed">
+                            <span className='font-semibold'>Motivo cancelamento</span>
+                            <span className="text-center italic">{schedule.customerSuggest}</span>
+                        </div>
+                    )}
+
+                    </>
+                </ModalCustom>
             )}
 
         </>

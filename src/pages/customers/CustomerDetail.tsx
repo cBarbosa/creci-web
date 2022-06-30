@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { CustomerType } from '../../models/Customer';
 import {
-    ArrowSquareOut,
     CalendarCheck,
     CalendarX,
     Cardholder,
@@ -13,9 +12,7 @@ import {
     NotePencil,
     Plus,
     Trash,
-    UserCircle,
-    X,
-    XCircle
+    UserCircle
 } from 'phosphor-react';
 import { LoadingSpin } from '../../components/LoadingSpin';
 import { toast } from 'react-toastify';
@@ -284,7 +281,7 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
                 </section>
             </div>
 
-            {showModal ? (
+            {showModal && (
                 <ModalCustom
                     setShowModal={setShowModal}
                     confirmFunction={_handleDeleteAddress}
@@ -304,14 +301,13 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
                         </div>
                     </div>
                 </ModalCustom>
-            ) : null}
+            )}
 
-            {showModalCustomer ?
+            {showModalCustomer &&
                 <CustomerModalEdit customer={customer!} setShowModal={setShowModalCustomer} setLoading={setLoading} setCustomer={setCustomer} />
-                 : null
             }
 
-            {showModalDelCustomer ? (
+            {showModalDelCustomer && (
                 <ModalCustom
                     setShowModal={setShowModalDelCustomer}
                     confirmFunction={_handleDeleteCustomer}
@@ -323,24 +319,24 @@ const CustomerDetailPage: React.FunctionComponent<ICustomerDetailPageProps> = (p
                         </p>
                     </div>
                 </ModalCustom>
-            ) : null}
+            )}
 
-            {showModalAddress ? (
+            {showModalAddress && (
                 <AddressModalEdit
                     setShowModal={setShowModalAddress}
                     setLoading={setLoading}
                     address={address!}
                     realoadCustomer={_getCustomerFromDB}
                 />
-            ) : null}
+            )}
 
-            {showModalAddAddress ? (
+            {showModalAddAddress && (
                 <AddressModalAdd
                 setShowModal={setShowModalAddAddress}
                 setLoading={setLoading}
                 address={{ customerUuid:uuid } as AddressType}
                 realoadCustomer={_getCustomerFromDB} />
-            ): null}
+            )}
         </>
         );
 };

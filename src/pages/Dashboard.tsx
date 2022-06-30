@@ -1,5 +1,7 @@
+import { CalendarBlank, CalendarCheck, CalendarX, UserCircle } from 'phosphor-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { AlertInfo } from '../components/Alert/AlertInfo';
 import { ScheduleWeek } from '../components/layouts/ScheduleWeek';
 import { useAuth } from '../hooks/useAuth';
 
@@ -21,104 +23,62 @@ const DashboardPage: React.FunctionComponent<IDashboardPageProps> = (props) => {
                 </ol>
             </nav>
 
-            <div className="px-10 flex items-center align-middle">
-                <div className="w-full p-4 mb-4 text-sm text-yellow-700 bg-yellow-100 rounded-lg" role="alert">
-                    <span className="font-medium">Atenção!</span> Verifique junto ao CRECI as informações de pagamento.
-                </div>
-            </div>
+            <AlertInfo message='Verifique junto ao CRECI as informações de pagamento.' />
 
-            <div className="flex items-center">
-                <div className="px-5 mx-auto container align-middle">
-                    <div className="grid grid-cols-2 gap-2">
-                        <div className="shadow rounded-lg py-3 px-5 bg-white">
-                            <div className="flex flex-row justify-between items-center">
-                                <div>
-                                    <h6 className="text-2xl">Visitas cumpridas</h6>
-                                    <h4 className="text-black text-4xl font-bold text-left">33</h4>
-                                </div>
-                                <div>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-12 w-12"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="#14B8A6"
-                                        strokeWidth="2"
-                                    >
-                                        <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-                                        />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="text-left flex flex-row justify-start items-center">
-                                <span className="mr-1">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="#14B8A6"
-                                        strokeWidth="2"
-                                    >
-                                        <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                                        />
-                                    </svg>
-                                </span>
-                                <p><span className="text-teal-500 font-bold">3%</span> último mês</p>
-                            </div>
+            <div className="flex items-center bg-gray-200 text-gray-800">
+                <div className="p-4 w-full">
+                    <div className="grid grid-cols-12 gap-4">
+                    
+                    <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                        <div className="flex flex-row bg-white shadow-sm rounded p-4">
+                        <div className="flex items-center justify-center flex-shrink-0 h-12 w-12 rounded-xl bg-blue-100 text-blue-500">
+                            <UserCircle size={32} />
                         </div>
-                        <div className="shadow rounded-lg py-3 px-5 bg-white">
-                            <div className="flex flex-row justify-between items-center">
-                                <div>
-                                    <h6 className="text-2xl">Visitas canceladas</h6>
-                                    <h4 className="text-black text-4xl font-bold text-left">41</h4>
-                                </div>
-                                <div>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-12 w-12"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="#EF4444"
-                                        strokeWidth="2"
-                                    >
-                                        <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-                                        />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="text-left flex flex-row justify-start items-center">
-                                <span className="mr-1">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="#EF4444"
-                                        strokeWidth="{2}"
-                                    >
-                                        <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
-                                        />
-                                    </svg>
-                                </span>
-                                <p><span className="text-red-500 font-bold">12%</span> último mês</p>
-                            </div>
+                        <div className="flex flex-col flex-grow ml-4">
+                            <div className="text-sm text-gray-500">Clientes</div>
+                            <div className="font-bold text-lg">1259</div>
                         </div>
+                        </div>
+                    </div>
+
+                    <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                        <div className="flex flex-row bg-white shadow-sm rounded p-4">
+                        <div className="flex items-center justify-center flex-shrink-0 h-12 w-12 rounded-xl bg-green-100 text-green-500">
+                            <CalendarCheck size={32} />
+                        </div>
+                        <div className="flex flex-col flex-grow ml-4">
+                            <div className="text-sm text-gray-500">Concluídas</div>
+                            <div className="font-bold text-lg">230</div>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                        <div className="flex flex-row bg-white shadow-sm rounded p-4">
+                        <div className="flex items-center justify-center flex-shrink-0 h-12 w-12 rounded-xl bg-orange-100 text-orange-500">
+                            <CalendarBlank size={32} />
+                        </div>
+                        <div className="flex flex-col flex-grow ml-4">
+                            <div className="text-sm text-gray-500">Em andamento</div>
+                            <div className="font-bold text-lg">190</div>
+                        </div>
+                        </div>
+                    </div>
+                    <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                        <div className="flex flex-row bg-white shadow-sm rounded p-4">
+                        <div className="flex items-center justify-center flex-shrink-0 h-12 w-12 rounded-xl bg-red-100 text-red-500">
+                            <CalendarX size={32} />
+                        </div>
+                        <div className="flex flex-col flex-grow ml-4">
+                            <div className="text-sm text-gray-500">Canceladas</div>
+                            <div className="font-bold text-lg">$ 32k</div>
+                        </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
+
 
             <ScheduleWeek />
         </>

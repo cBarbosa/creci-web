@@ -1,11 +1,14 @@
 import { GoogleMap, LoadScript, Marker, useJsApiLoader } from '@react-google-maps/api';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 export interface IAppointmentPageProps {};
 
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_AUTH;
 
 const AppointmentPage: React.FunctionComponent<IAppointmentPageProps> = (props) => {
+
+    const { uuid } = useParams();
 
     const [map, setMap] = React.useState<google.maps.Map>();
     // const { isLoaded, loadError } = useJsApiLoader({

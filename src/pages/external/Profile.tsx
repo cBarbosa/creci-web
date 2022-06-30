@@ -1,6 +1,6 @@
 import React from 'react';
 import {QRCodeSVG} from 'qrcode.react';
-import api from '../../services/fetchProfile';
+import {fetchProfile as api} from '../../services/fetchApi';
 
 export interface IProfilePageProps {};
 

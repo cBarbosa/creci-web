@@ -2,15 +2,13 @@ import React from "react";
 
 interface ModalBottomProps {
     setShowModal: (show: boolean) => void;
-    confirmFunction: () => void;
-    setLoading?: (loading: boolean) => void;
+    confirmFunction?: () => void;
 };
 
 export const ModalBottom = (
     {
         setShowModal,
-        confirmFunction,
-        setLoading
+        confirmFunction
     } : ModalBottomProps) => {
 
     return(
@@ -22,13 +20,16 @@ export const ModalBottom = (
             >
                 Fechar
             </button>
-            <button
-                className="bg-blue-500 text-white active:bg-blue-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                type="button"
-                onClick={() => confirmFunction()}
-            >
-                Confirma
-            </button>
+            {confirmFunction && (
+                <button
+                    className="bg-blue-500 text-white active:bg-blue-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => confirmFunction()}
+                >
+                    Confirma
+                </button>
+            )}
+            
         </div>
     );
 

@@ -23,6 +23,7 @@ import CustomerCreatePage from './src/pages/customers/CustomerCreate';
 import AddressDetailPage from './src/pages/addresses/AddressDetail';
 import AddressListPage from './src/pages/addresses/AddressList';
 import { LoadingSpin } from './src/components/LoadingSpin';
+import AppointmentNewPage from './src/pages/external/AppointmentNew';
 
 const ProtectedRoute = ({
   isAllowed,
@@ -79,8 +80,9 @@ export default function Routes() {
             </Route>
             <Route path='/query'  >
               {/* <Route index element={<MapPages />}/> */}
+              {/* <Route path='appointment-new' element={<AppointmentNewPage />} /> */}
               <Route path='profile/:qrcode' element={<ProfilePage />} />
-              <Route path='appointment/:qrcode' element={<AppointmentPage />} />
+              <Route path='appointment/:qrcode' element={<AppointmentNewPage />} />
             </Route>
             
             <Route path="/forbiden" element={<ForbidenPage />} />

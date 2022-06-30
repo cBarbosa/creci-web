@@ -46,15 +46,34 @@ const DATETIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    fractionalSecondDigits: 3,
+    // fractionalSecondDigits: 3,
     timeZone: 'America/Sao_Paulo',
     hour12: false
 };
+
+
+const STATUS_TUPLE: [number, string][] = [
+    [1, `Aguardando aprovação do cliente`],
+    [2, `Cliente aprovou a solicitação`],
+    [3, `Cliente negou a solicitação`],
+    [4, `Cliente propos novo horário`],
+    [5, `Visita realizada`]
+];
+
+const STATUS_TUPLE_SIMPLIFIED: [number, string][] = [
+    [1, `Aguardando`],
+    [2, `Aprovado`],
+    [3, `Negado`],
+    [4, `Aguardando`],
+    [5, `Aprovado`]
+];
 
 export {
     CreateSchedule,
     UpdateSchedule,
     DeleteSchedule,
     TIMES_TO_SCHEDULE,
-    DATETIME_FORMAT_OPTIONS
+    DATETIME_FORMAT_OPTIONS,
+    STATUS_TUPLE,
+    STATUS_TUPLE_SIMPLIFIED
 };
