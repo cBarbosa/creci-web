@@ -10,7 +10,6 @@ import { useAuth } from './src/hooks/useAuth';
 import LoginPage from './src/pages/Login';
 import MapFormPages from './src/pages/maps/MapFormPage';
 import MapPages from './src/pages/maps/MapPage';
-import SchedulePage from './src/pages/register/schedule';
 import App from './src/App';
 import CustomersListPage from './src/pages/customers/CustomersList';
 import CustomerDetailPage from './src/pages/customers/CustomerDetail';
@@ -70,8 +69,6 @@ export default function Routes() {
               <Route path='address' element= {<AddressListPage/>}/>
               <Route path='address/:uuid' element={<AddressDetailPage/>} />
             </Route>
-
-            <Route path='/schedule' element={<SchedulePage />}/>
             
 
             <Route path='/maps'  >
