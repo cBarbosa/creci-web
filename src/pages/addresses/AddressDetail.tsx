@@ -263,7 +263,7 @@ const AddressDetailPage: React.FunctionComponent<IAddressDetailPageProps> = (pro
 
                                                     {schedule.rejected && (
                                                         <div>
-                                                            <Eye size={20} color="green" weight="duotone" className='cursor-pointer' onClick={() => _handleShowViewSchedule(schedule)}  />
+                                                            <Eye size={20} color="red" weight="duotone" className='cursor-pointer' onClick={() => _handleShowViewSchedule(schedule)}  />
                                                         </div>
                                                     )}
                                                 </td>

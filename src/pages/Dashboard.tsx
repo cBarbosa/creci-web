@@ -1,4 +1,9 @@
-import { CalendarBlank, CalendarCheck, CalendarX, UserCircle } from 'phosphor-react';
+import {
+    CalendarBlank,
+    CalendarCheck,
+    CalendarX,
+    UserCircle
+} from 'phosphor-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AlertInfo } from '../components/Alert/AlertInfo';
@@ -71,7 +76,7 @@ const DashboardPage: React.FunctionComponent<IDashboardPageProps> = (props) => {
                         </div>
                         <div className="flex flex-col flex-grow ml-4">
                             <div className="text-sm text-gray-500">Canceladas</div>
-                            <div className="font-bold text-lg">$ 32k</div>
+                            <div className="font-bold text-lg">32</div>
                         </div>
                         </div>
                     </div>

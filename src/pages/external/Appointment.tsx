@@ -1,4 +1,9 @@
-import { GoogleMap, LoadScript, Marker, useJsApiLoader } from '@react-google-maps/api';
+import {
+    GoogleMap,
+    LoadScript,
+    Marker,
+    useJsApiLoader
+} from '@react-google-maps/api';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -11,11 +16,11 @@ const AppointmentPage: React.FunctionComponent<IAppointmentPageProps> = (props) 
     const { uuid } = useParams();
 
     const [map, setMap] = React.useState<google.maps.Map>();
-    // const { isLoaded, loadError } = useJsApiLoader({
-    //     id: 'google-map-script',
-    //     googleMapsApiKey: GOOGLE_API_KEY,
-    //     libraries: ['places']
-    // });
+    const { isLoaded, loadError } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: GOOGLE_API_KEY,
+        libraries: ['places']
+    });
 
     const position = {
         lat: -15.828020052676033,
