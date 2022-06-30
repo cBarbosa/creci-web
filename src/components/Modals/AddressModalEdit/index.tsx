@@ -2,10 +2,10 @@ import React from "react";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { AddressFormData, AddressType } from "../../../models/Customer";
 import { toast } from 'react-toastify';
 import { X } from "phosphor-react";
 import { STATES_OF_BRAZIL, UpdateAddress } from "../../../services/address";
+import { AddressFormData, AddressType } from "../../../models/Address";
 
 interface AddressModalEditProps {
     address: AddressType;
